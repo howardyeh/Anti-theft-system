@@ -27,6 +27,9 @@ countItem = 0
 def humanDetection(detection, humanDataset):
 	for all h_n in detection:
 		find_pair = false
+                '''
+                TODO: Human feature qeury when human back
+                '''
 		for all h_d in humanDataset:
 			if h_n.position - h_d.position < thres:
 				h_d.update_position()
@@ -71,42 +74,47 @@ def Scan_for_item_existing(humanDataset, itemDataset):
 	for all people in humanDataset:
 		if people.missing == false:
 			for item in people.itemList:
-					if item.missing == false: 
-						item.alarm_flag = true
+				if item.missing == false: 
+					item.alarm_flag = true
+				else:
+					if item.alarm_flag == True:
+						Tracking_suspect(item)
 					else:
-						if item.alarm_flag == True:
-							Tracking_suspect(item)
-						else:
-							pop_item_from_dataset(item)
+						pop_item_from_dataset(item)
 			if people.itemList == []:
 				pop_people_from_dataset(people)
-        
+                 else:
+                        for item in people.itemList:
+                                if item.missing ==true:
+                                        pop_item_from_dataset(item)    
 
 				
 def findClosestHuman(item):
 	for all people in humanDataset:
-		If people.position is close to item.position:
+		if people.position is close to item.position:
 			People.itemList.append(item.id)
 
 										
 def Tracking_suspect(item):
 	for all people in humanDataset:
-		If people.position is close to item.position:
+		if people.position is close to item.position:
 			People.suspect_label = True
 
 
 def Display(people dataset):
 	for all people in dataset:
-		If people.suspect_label==true: bounded with red color
+		if people.suspect_label==true: bounded with red color
+             	else: bounded with black color
 
 
 '''
 TODO
-1.BACKGROUND SEGMENTATION
-2.QUERY
+1.Background segmentation
+2.QUERY(feature matching)
 3.Popping function
-4.Yolo
-5...
+4.Yolov3 (detection)
+5.SetAllAlarmOff
+6.Findclosethuman
 '''
 
 def main():
