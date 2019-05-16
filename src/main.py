@@ -1,40 +1,46 @@
+import random
+import math
+
+
 class humanData:
-	updated = false
-	missing = false
-	id = 0
-	x
-	y
-	itemList = []
-	def update_position(nx, ny):
-		x = nx
-		y = ny
+    def __init__(self):
+	self.updated = False
+	self.missing = False
+	self.id = 0
+	self.x
+	self.y
+	self.itemList = []
+	def update_position(self,nx, ny):
+		self.x = nx
+		self.y = ny
 
 
 class itemData:
-	updated = false
-	missing = false
-	alarm_flag = false
-	id = 0
-	x
-	y
-	def update_position(nx, ny):
-		x = nx
-		y = ny
+    def __init__(self):
+	self.updated = False
+	self.missing = False
+	self.alarm_flag = False
+	self.id = 0
+	self.x
+	self.y
+	def update_position(self,nx, ny):
+		self.x = nx
+		self.y = ny
 
 countHuman = 0
 countItem = 0
 
 def humanDetection(detection, humanDataset):
-	for all h_n in detection:
-		find_pair = false
-                '''
-                TODO: Human feature qeury when human back
-                '''
-		for all h_d in humanDataset:
+	for h_n in detection:
+		find_pair = False
+                
+                #TODO: Human feature qeury when human back
+               
+		for h_d in humanDataset:
 			if h_n.position - h_d.position < thres:
 				h_d.update_position()
-				h_d.updated = true
-				h_d.missing = false
+				h_d.updated = True
+				h_d.missing = False
 				find_pair = true
 				setAllItemAlarmOff(h_d)
 				break
@@ -43,20 +49,20 @@ def humanDetection(detection, humanDataset):
 			humanDataset[countHuman] = h_n
 			h_n.id = countHuman
 
-	for all h_d in humanDataset:
-		if h_d.updated == false and h_d.missing == false:
-			h_d.missing = true
-		h_d.updated = false # reset the update flag
+	for h_d in humanDataset:
+		if h_d.updated == False and h_d.missing == False:
+			h_d.missing = True
+		h_d.updated = False # reset the update flag
 
 def itemDetection(detection, itemDataset):
-	for all d_n in detection:
-		find_pair = false
-		for all d_d in itemDataset:
+	for d_n in detection:
+		find_pair = False
+		for d_d in itemDataset:
 			if d_n.position - h_d.position < thres:
 				d_d.update_position()
-				d_d.updated = true
-				d_d.missing = false
-				find_pair = true
+				d_d.updated = True
+				d_d.missing = False
+				find_pair = True
 				break
 		if not find_pair:
 			countItem = countItem + 1
@@ -64,12 +70,12 @@ def itemDetection(detection, itemDataset):
 			d_n.id = countItem
 			findClosestHuman(item)
 
-	for all d_d in itemDataset:
-		if d_d.updated == false and h_d.missing == false:
-			d_d.missing = true
-		d_d.updated = false # reset the update flag
+	for d_d in itemDataset:
+		if d_d.updated == False and h_d.missing == False:
+			d_d.missing = True
+		d_d.updated = False # reset the update flag
 
-
+'''
 def Scan_for_item_existing(humanDataset, itemDataset):
 	for all people in humanDataset:
 		if people.missing == false:
@@ -106,6 +112,11 @@ def Display(people dataset):
 		if people.suspect_label==true: bounded with red color
              	else: bounded with black color
 
+'''
+
+def yolo(human,item,num):
+    #print(num)   
+    return (human[num],item[num])
 
 '''
 TODO
@@ -118,19 +129,34 @@ TODO
 '''
 
 def main():
-	humanDataset = {}
-	itemDataset = {}
-	while(true):
-		detection = yolo(image)
-		humanDetection(detection, humanDataset)
-		itemDetection(detection, itemDataset)
+    item0_pos=(100,100)
+    item1_pos=(50,50)
+    people0_pos=(110,110)
+    people1_pos=(30,30)
+    humanDataset = {}
+    itemDataset = {}
+    #Generate some data (Not complete,increment 0-10 each time step)
+    item={0:["Lattop",item0_pos[0],item0_pos[1]],1:["Cell Phone",item1_pos[0],item1_pos[1]]}
+    count=0
+    human={0:["Human A",people0_pos[0],people0_pos[1]],1:["Human B",people1_pos[0],people1_pos[1]]}
+    while count<10:
+        for i in range(2):
+           for j in range(1,3):
+                item[i][j]+=random.random()%10
+                human[i][j]+=random.random()%10
+        
+        detection=yolo(human,item,(random.randint(5,19)%2))
+        count+=1
+        print(detection[0])
+	#detection = yolo(random.random()%2)
+	#humanDetection(detection, humanDataset)
+	#itemDetection(detection, itemDataset)
 
-		Scan_for_item_existing(humanDataset)
-		Display(humanDataset, itemDataset)
+	#Scan_for_item_existing(humanDataset)
+	#Display(humanDataset, itemDataset)
 
 
 
-
-
+main()
 
 
