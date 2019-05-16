@@ -131,7 +131,7 @@ TODO
 def main():
     item0_pos=(100,100)
     item1_pos=(50,50)
-    people0_pos=(110,110)
+    people0_pos=(105,105)
     people1_pos=(30,30)
     humanDataset = {}
     itemDataset = {}
@@ -162,11 +162,14 @@ def main():
                     #human[i][j]+random.random()%5+10
                     if human[1][1]>=100:
                         #print("uuuuuuuuuuuuuuuuuuu",human[1])
-                        item[0][1]=1000
-                        item[0][2]=1000
+                        #item[0][1]=1000
+                        #item[0][2]=1000
                         if count>80:
                             print("B stole and fleet")
                             human[1][2]+=random.random()%25+20
+                            item[0][1]=human[1][1]
+                            item[0][2]=human[1][2]
+                            #human[1][2]+=random.random()%25+20
                         else:
                             print("B wait for the chance")
                     else:
