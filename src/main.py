@@ -80,6 +80,8 @@ def Scan_for_item_existing(humanDataset, itemDataset):
 							pop_item_from_dataset(item)
 			if people.itemList == []:
 				pop_people_from_dataset(people)
+        
+
 				
 def findClosestHuman(item):
 	for all people in humanDataset:
@@ -98,7 +100,14 @@ def Display(people dataset):
 		If people.suspect_label==true: bounded with red color
 
 
-
+'''
+TODO
+1.BACKGROUND SEGMENTATION
+2.QUERY
+3.Popping function
+4.Yolo
+5...
+'''
 
 def main():
 	humanDataset = {}
