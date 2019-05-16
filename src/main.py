@@ -115,8 +115,18 @@ def Display(people dataset):
 '''
 
 def yolo(human,item,num):
-    #print(num)   
-    return (human[num],item[0])
+    #print(num)
+    x_range=[0,200]
+    y_range=[0,200]
+    human_list=[]
+    item_list=[]
+    for i in range(2):
+       #print(human[i])
+       if human[i][1]<x_range[1] and human[i][1]>x_range[0] and human[i][2]<y_range[1] and human[i][2]>y_range[0]:   
+           human_list.append(human[i])
+    if item[0][1]<x_range[1] and item[0][1]>x_range[0] and item[0][2]<y_range[1] and item[0][2]>y_range[0]:   
+       item_list.append(item[0])
+    return (human_list,item_list)
 
 '''
 TODO
@@ -177,13 +187,10 @@ def main():
                         human[0][1]+=random.random()%10+30
                         human[1][1]+=random.random()%5+10
                         human[1][2]+=random.random()%5+10
-        detection1=yolo(human,item,0)
-        detection2=yolo(human,item,1)#(random.randint(5,19)%2))
+        detection=yolo(human,item,0)
+        #detection2=yolo(human,item,1)#(random.randint(5,19)%2))
         count+=1
-        if (count<40):
-            print(detection1)
-        else:
-            print(str(detection1[0])+str(detection2))
+        print(detection)
 	#detection = yolo(random.random()%2)
 	#humanDetection(detection, humanDataset)
 	#itemDetection(detection, itemDataset)
