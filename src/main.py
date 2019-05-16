@@ -151,13 +151,8 @@ def main():
     human={0:["Human A",people0_pos[0],people0_pos[1]],1:["Human B",people1_pos[0],people1_pos[1]]}
     flag=1
     while count<100:
-        #for i in range(1):
-        #   for j in range(1,3):
-                #item[i][j]+=random.random()%10
         if flag==0 and count<40: 
-                #human[i][j]-=random.random()%5+10 
                if human[0][1]<100:
-                    #print("2",count)
                     pass
                else:
                     print("A back")
@@ -169,17 +164,13 @@ def main():
                flag=0
                if count>40:
                     
-                    #human[i][j]+random.random()%5+10
                     if human[1][1]>=100:
-                        #print("uuuuuuuuuuuuuuuuuuu",human[1])
-                        #item[0][1]=1000
-                        #item[0][2]=1000
+                        
                         if count>80:
                             print("B stole and fleet")
                             human[1][2]+=random.random()%25+20
                             item[0][1]=human[1][1]
                             item[0][2]=human[1][2]
-                            #human[1][2]+=random.random()%25+20
                         else:
                             print("B wait for the chance")
                     else:
@@ -188,13 +179,10 @@ def main():
                         human[1][1]+=random.random()%5+10
                         human[1][2]+=random.random()%5+10
         detection=yolo(human,item,0)
-        #detection2=yolo(human,item,1)#(random.randint(5,19)%2))
         count+=1
         print(detection)
-	#detection = yolo(random.random()%2)
 	#humanDetection(detection, humanDataset)
 	#itemDetection(detection, itemDataset)
-
 	#Scan_for_item_existing(humanDataset)
 	#Display(humanDataset, itemDataset)
 
