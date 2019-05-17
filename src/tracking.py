@@ -22,18 +22,19 @@ def Scan_for_item_existing(humanDataset, itemDataset):
     for human in humanDataset.values():
 	if human.missing == True:  #True or false
 	    for item in human.itemList:
-		cloestHuman,dist=findCloestHuman(item,humanDataset) 
+		cloestHuman,dist=findCloestHuman(item,humanDataset)
 		if itemDataset[item].missing == False: 
 		     itemDataset[item].alarm_flag = True
                      if dist>oclussion_check_dist:
                         cloestHuman.isSuspect=True
-                        Track_and_display(humanDataset) 
+                        #Track_and_display(humanDataset) 
 		else:
 		    if itemDataset[item].alarm_flag == True:
 		        #cloestHuman,dist=findCloestHuman(item,humanDataset) 
                         
                         if cloestHuman.isSuspect==True:
-                            Track_and_display(humanDataset)   
+                            pass 
+                            #Track_and_display(humanDataset) will used in main function   
                         else:
                             if dist>oclussion_chek_dist:
                                 cloestHuman.isSuspect=True
