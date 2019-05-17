@@ -1,118 +1,20 @@
 import random
 import math
+from dataType import humanData, itemData
+from autoencoder import Autoencoder
+from matching import humanMatching, itemMatching
+# from tracking import Scan_for_item_existing, Tracking_suspect, Display
 
+''' 
+Container content :
 
-class humanData:
-    def __init__(self):
-	self.updated = False
-	self.missing = False
-	self.id = 0
-	self.x
-	self.y
-	self.itemList = []
-	def update_position(self,nx, ny):
-		self.x = nx
-		self.y = ny
-
-
-class itemData:
-    def __init__(self):
-	self.updated = False
-	self.missing = False
-	self.alarm_flag = False
-	self.id = 0
-	self.x
-	self.y
-	def update_position(self,nx, ny):
-		self.x = nx
-		self.y = ny
-
-countHuman = 0
-countItem = 0
-
-def humanDetection(detection, humanDataset):
-	for h_n in detection:
-		find_pair = False
-                
-                #TODO: Human feature qeury when human back
-               
-		for h_d in humanDataset:
-			if h_n.position - h_d.position < thres:
-				h_d.update_position()
-				h_d.updated = True
-				h_d.missing = False
-				find_pair = true
-				setAllItemAlarmOff(h_d)
-				break
-		if not find_pair:
-			countHuman = countHuman + 1
-			humanDataset[countHuman] = h_n
-			h_n.id = countHuman
-
-	for h_d in humanDataset:
-		if h_d.updated == False and h_d.missing == False:
-			h_d.missing = True
-		h_d.updated = False # reset the update flag
-
-def itemDetection(detection, itemDataset):
-	for d_n in detection:
-		find_pair = False
-		for d_d in itemDataset:
-			if d_n.position - h_d.position < thres:
-				d_d.update_position()
-				d_d.updated = True
-				d_d.missing = False
-				find_pair = True
-				break
-		if not find_pair:
-			countItem = countItem + 1
-			itemDataset[countItem] = d_n
-			d_n.id = countItem
-			findClosestHuman(item)
-
-	for d_d in itemDataset:
-		if d_d.updated == False and h_d.missing == False:
-			d_d.missing = True
-		d_d.updated = False # reset the update flag
+humanDataset         = {human_id1:humanData1, human_id2:humanData2, ...}
+itemDataset          = {item_id1:itemData1, item_id2:itemData2, ...}
+missingPeopleDataset = {feature1(np.array):humanData1, feature2(np.array):humanData2, ...}
+detection            = [[upleft_x, upleft_y, downright_x, downright_y],[upleft_x, upleft_y, downright_x, downright_y]...]
 
 '''
-def Scan_for_item_existing(humanDataset, itemDataset):
-	for all people in humanDataset:
-		if people.missing == false:
-			for item in people.itemList:
-				if item.missing == false: 
-					item.alarm_flag = true
-				else:
-					if item.alarm_flag == True:
-						Tracking_suspect(item)
-					else:
-						pop_item_from_dataset(item)
-			if people.itemList == []:
-				pop_people_from_dataset(people)
-                 else:
-                        for item in people.itemList:
-                                if item.missing ==true:
-                                        pop_item_from_dataset(item)    
 
-				
-def findClosestHuman(item):
-	for all people in humanDataset:
-		if people.position is close to item.position:
-			People.itemList.append(item.id)
-
-										
-def Tracking_suspect(item):
-	for all people in humanDataset:
-		if people.position is close to item.position:
-			People.suspect_label = True
-
-
-def Display(people dataset):
-	for all people in dataset:
-		if people.suspect_label==true: bounded with red color
-             	else: bounded with black color
-
-'''
 
 def yolo(human,item,num):
     #print(num)
@@ -138,7 +40,7 @@ TODO
 6.Findclosethuman
 '''
 
-def main():
+def mainFunc():
     item0_pos=(100,100)
     item1_pos=(50,50)
     people0_pos=(105,105)
@@ -181,13 +83,22 @@ def main():
         detection=yolo(human,item,0)
         count+=1
         print(detection)
-	#humanDetection(detection, humanDataset)
-	#itemDetection(detection, itemDataset)
-	#Scan_for_item_existing(humanDataset)
-	#Display(humanDataset, itemDataset)
+
+    
+
+	# humanDataset = {}
+	# itemDataset = {}
+	# missingPeopleDataset = {}
+	# encoder = Autoencoder()
+
+	# humanMatching(image, detection, humanDataset, itemDataset, encoder, missingPeopleDataset))
+	# itemMatching(detection, itemDataset, humanDataset)
+	# Scan_for_item_existing(humanDataset)
+	# Display(humanDataset, itemDataset)
 
 
 
-main()
+if name=="__main__":
+	mainFunc()
 
 
