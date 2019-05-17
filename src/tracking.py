@@ -22,7 +22,8 @@ def Scan_for_item_existing(humanDataset, itemDataset):
 	pop_item_list=[]
 	pop_human_list=[]
 	for human in humanDataset.values():
-		if human.missing == True:  #True or false
+		if human.missing == True:  #True or falsue
+			print("humanmissing",human.x,human.y)
 			for item in human.itemList:
 
 				cloestHuman,dist=findClosestHuman(itemDataset[item],humanDataset)
@@ -49,7 +50,7 @@ def Scan_for_item_existing(humanDataset, itemDataset):
 								cloestHuman.isSuspect=False    
 								#Oclussion case
 					else:
-						print("pop item when no alarm")
+						print("pop item when no alarm ",item,"human pos",human.x,human.y)
 						pop_item_list.append(itemDataset[item])
 						#Pop_item_from_dataset(item,itemDataset)  #minor Case: disappear at same time
 			if human.itemList == []:
