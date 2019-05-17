@@ -114,9 +114,10 @@ def findClosestHuman(item, humanDataset):
 	closestHuman = None
 	for human in humanDataset.values():
 		dist = np.sqrt((item.x - human.x)**2 + (item.y - human.y)**2)
+		print("distance between human",human.id, "and item", item.id, "is", dist)
 		if dist < min_dist:
 			min_dist = dist
-		closestHuman = human
+			closestHuman = human
 
 	closestHuman.itemList.append(item.id)
 	#can i add a return closeHuman (do you need a range around the item?) 
