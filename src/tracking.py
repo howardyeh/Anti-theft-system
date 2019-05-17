@@ -20,16 +20,21 @@ from matching import findClosestHuman
 def Scan_for_item_existing(humanDataset, itemDataset):
     oclussion_check_dist=30   #not sure about this distance
     for human in humanDataset.values():
-	if human.missing == True:  #True or false
+	print("aaaaa`",human,human.missing)
+        if human.missing == True:  #True or false
 	    for item in human.itemList:
+
+                print("itemdataiiii`",itemDataset,item)
 	        cloestHuman,dist=findClosestHuman(itemDataset[item],humanDataset)
-		print("close",cloestHuman)
+		#print("close",cloestHuman)
                 if itemDataset[item].missing == False: 
 		     itemDataset[item].alarm_flag = True
                      if dist>oclussion_check_dist:
                         cloestHuman.isSuspect=True 
                         #Take by suspect explicitly
 		else:
+                    print(itemDataset)
+                    print(humanDataset)
 		    if itemDataset[item].alarm_flag == True:
 		        #cloestHuman,dist=findCloestHuman(item,humanDataset) 
                         
@@ -43,20 +48,25 @@ def Scan_for_item_existing(humanDataset, itemDataset):
                                 cloestHuman.isSuspect=False    
                                 #Oclussion case
 		    else:
-		        Pop_item_from_dataset(item)  #minor Case: disappear at same time
+                        print("pop item when no alarm")
+		        Pop_item_from_dataset(item,itemDataset)  #minor Case: disappear at same time
 	    if human.itemList == []:
-	        Pop_human_from_dataset(human)
+                print("pop human")
+	        Pop_human_from_dataset(human,humanDataset)
         else:
+            print("itemdata___",itemDataset)
             for item in human.itemList:
+                print(item.missing)
                 if itemDataset[item].missing ==True:
-                    Pop_item_from_dataset(item)
+                    print("pop item when item missing")
+                    Pop_item_from_dataset(item,itemDataset)
                 else:
                     pass    
 
 										 
 
 
-def Track_and_Display(humanDataset,iemDataset):
+def Track_and_Display(humanDataset,itemDataset):
     human_disp_list=[]
     for human in humandataset:
 	if human.isSuspect==true: 
@@ -68,7 +78,7 @@ def Track_and_Display(humanDataset,iemDataset):
     print(human_disp_list)
 
 
-
-
-
-
+def Pop_item_from_dataset(item,itemDataset):
+    itemDataset.pop(item)
+def Pop_human_from_dataset(human,humanDataset):
+    humanDataset.pop(human)

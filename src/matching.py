@@ -27,6 +27,8 @@ global countItem
 countHuman=0
 countItem=0
 
+
+#temperory remove autoencoder, will add it back when finishing debuging
 def humanMatching(image, detection, humanDataset, itemDataset, missingPeopleDataset):
         #Add by Shawn delete if not need
         global countHuman
@@ -58,7 +60,7 @@ def humanMatching(image, detection, humanDataset, itemDataset, missingPeopleData
                                 
 				newHuman = humanData(hnx, hny, countHuman)
 				humanDataset[countHuman] = newHuman
-			
+			        print("humanDataset",humanDataset)
 			else:
 				humanDataset[matchId].updated = True
 				humanDataset[matchId].missing = False
@@ -72,8 +74,8 @@ def humanMatching(image, detection, humanDataset, itemDataset, missingPeopleData
 		h_d.updated = False # reset the update flag for all human in dataset
 
 
-def itemMatching(detection, itemDataset, humanDataset):
-
+def itemMatching(detection, humanDataset,itemDataset):
+        #print("item___",humanDataset)
 	global countItem
         distanceThres = 10 # 10 pixel
         
@@ -92,7 +94,7 @@ def itemMatching(detection, itemDataset, humanDataset):
 
 		if not find_pair:
 			countItem = countItem + 1
-			newItem = humanData(dnx, dny, countItem)
+			newItem = itemData(dnx, dny, countItem) #typo originally humanData
 			itemDataset[countItem] = newItem
 			findClosestHuman(itemDataset[countItem], humanDataset) # link the item to human
 
@@ -108,13 +110,17 @@ def itemMatching(detection, itemDataset, humanDataset):
 def findClosestHuman(item, humanDataset):
 	min_dist = 1000
 	closestHuman = None
+        #print("hu",humanDataset)
 	for human in humanDataset.values():
-		dist = np.sqrt((item.x - human.x)**2 + (item.y - human.y)**2)
-		if dist < min_dist:
-			min_dist = dist
-			closestHuman = human
-                        
-	closestHuman.itemList.append(item.id)
+           # print("human",human)
+	    dist = np.sqrt((item.x - human.x)**2 + (item.y - human.y)**2)
+	    if dist < min_dist:
+	        min_dist = dist
+		closestHuman = human
+            else:
+                print("dist,min_dist",dist,min_dist)        
+	#print("man",humanDataset)
+        closestHuman.itemList.append(item.id)
         #can i add a return closeHuman (do you need a range around the item?) 
         return closestHuman,dist
 
