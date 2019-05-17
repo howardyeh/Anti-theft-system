@@ -19,20 +19,22 @@ from matching import findClosestHuman
 
 def Scan_for_item_existing(humanDataset, itemDataset):
 	oclussion_check_dist=30   #not sure about this distance
+	pop_item_list=[]
 	for human in humanDataset.values():
 		if human.missing == True:  #True or false
 			for item in human.itemList:
 
 				cloestHuman,dist=findClosestHuman(itemDataset[item],humanDataset)
-				#print("close",cloestHuman)
+				print("item",itemDataset[item].id)
 				if itemDataset[item].missing == False: 
+					print("itemflag1",itemDataset[item].alram_flag)
 					itemDataset[item].alarm_flag = True
 					if dist>oclussion_check_dist:
 						cloestHuman.isSuspect=True 
 						#Take by suspect explicitly
 				else:
-					print(itemDataset)
-					print(humanDataset)
+					print("itemflag2",item,itemDataset[item].alarm_flag)
+					
 					if itemDataset[item].alarm_flag == True:
 						#cloestHuman,dist=findCloestHuman(item,humanDataset) 
 						
@@ -47,19 +49,22 @@ def Scan_for_item_existing(humanDataset, itemDataset):
 								#Oclussion case
 					else:
 						print("pop item when no alarm")
-						Pop_item_from_dataset(item,itemDataset)  #minor Case: disappear at same time
+						pop_item_list.append(itemDataset[item])
+						#Pop_item_from_dataset(item,itemDataset)  #minor Case: disappear at same time
 			if human.itemList == []:
-				print("pop human")
+				print("pop human",human.id,human.missing,human.x,human.y)
 				Pop_human_from_dataset(human,humanDataset)
 		else:
-			#print("itemdata___",itemDataset)
+			print("human.item",human.id,human.itemList,human.x,human.y)
 			for item in human.itemList:
 				if itemDataset[item].missing ==True:
 					print("pop item when item missing")
-					Pop_item_from_dataset(item,itemDataset)
+					#Pop_item_from_dataset(item,itemDataset)
+					pop_item_list.append(itemDataset[item])
 				else:
 					pass    
-
+	for item in pop_item_list:
+		Pop_item_from_dataset(item,itemDataset)
 										 
 
 
@@ -76,6 +81,8 @@ def Track_and_Display(humanDataset,itemDataset):
 
 
 def Pop_item_from_dataset(item,itemDataset):
+	print("itemDataset",itemDataset)
+	print("item",item.id)
 	itemDataset.pop(item.id) # typo: pop() need to use key not value
 def Pop_human_from_dataset(human,humanDataset):
 	humanDataset.pop(human.id) # typo: pop() need to use key not value

@@ -63,25 +63,25 @@ def mainFunc():
 	count=0
 	human={0:["Human A",people0_pos[0],people0_pos[1]],1:["Human B",people1_pos[0],people1_pos[1]]}
 	flag=1
-	while count<100:
+	while count<40:
 		print("=================")
 		print("time stamp:",count)
-		if flag==0 and count<40: 
+		if flag==0 and count<20: 
 			if human[0][1]<100:
 				pass
 			else:
 				print("A back")
 				human[0][1]-=random.random()%5+10 
-		elif human[0][1]<300 and count<50:
+		elif human[0][1]<200 and count<50:
 			print("A leave")
 			human[0][1]+=random.random()%5+10
 		else:
 			flag=0
-			if count>40:
+			if count>20:
 					
 				if human[1][1]>=100:
 						
-					if count>80:
+					if count>05:
 					    print("B stole and fleet")
 					    human[1][2]+=random.random()%25+20
 					    item[0][1]=human[1][1]
