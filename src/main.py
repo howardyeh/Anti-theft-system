@@ -32,10 +32,10 @@ def yolo(human,item,num):
     if item[0][1]<x_range[1] and item[0][1]>x_range[0] and item[0][2]<y_range[1] and item[0][2]>y_range[0]:   
        item_list.append(item[0])
     for human in human_list:
-        #print(human)
+        print("in yolo",human)
         res_human.append([human[1]-20,human[2]-50,human[1]+20,human[2]+50])
     for item in item_list:
-        
+        print("in yolo",item)
         res_item.append([item[1]-20,item[2]-20,item[1]+20,item[2]+20])
     return (res_human,res_item)
 
@@ -101,11 +101,11 @@ def mainFunc():
 	missingPeopleDataset = {}
 	#encoder = Autoencoder(image)
 	humanMatching(image, detection[0], humanDataset, itemDataset, missingPeopleDataset)
-	print("global",humanDataset)
-        print("item",itemDataset)
+	#print("global",humanDataset)
+        #print("item",itemDataset)
         itemMatching(detection[1], humanDataset,itemDataset)
-	print("global11111",humanDataset)
-        print("item22222",itemDataset)
+	#print("global11111",humanDataset)
+        #print("item22222",itemDataset)
 	Scan_for_item_existing(humanDataset,itemDataset)
 	Track_and_Display(humanDataset, itemDataset)
 

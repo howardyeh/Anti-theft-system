@@ -41,6 +41,7 @@ def humanMatching(image, detection, humanDataset, itemDataset, missingPeopleData
 		hny = (h_n[1] + h_n[3])/2.0
 
 		for h_d in humanDataset.values():
+                        print("test")
 			if np.sqrt((hnx - h_d.x)**2 + (hny - h_d.y)**2) < distanceThres:
 				h_d.update_position(hnx, hny)
 				h_d.updated = True
@@ -60,7 +61,7 @@ def humanMatching(image, detection, humanDataset, itemDataset, missingPeopleData
                                 
 				newHuman = humanData(hnx, hny, countHuman)
 				humanDataset[countHuman] = newHuman
-			        print("humanDataset",humanDataset)
+			        print("counthuman",humanDataset[countHuman].missing)
 			else:
 				humanDataset[matchId].updated = True
 				humanDataset[matchId].missing = False
@@ -70,6 +71,7 @@ def humanMatching(image, detection, humanDataset, itemDataset, missingPeopleData
 		# what if people get occluded for a frame?
 		if h_d.updated == False and h_d.missing == False:
 			h_d.missing = True
+                        print("h_d.missing is on", h_d.missing)
 
 		h_d.updated = False # reset the update flag for all human in dataset
 
@@ -118,7 +120,8 @@ def findClosestHuman(item, humanDataset):
 	        min_dist = dist
 		closestHuman = human
             else:
-                print("dist,min_dist",dist,min_dist)        
+                pass
+                #print("dist,min_dist",dist,min_dist)        
 	#print("man",humanDataset)
         closestHuman.itemList.append(item.id)
         #can i add a return closeHuman (do you need a range around the item?) 
