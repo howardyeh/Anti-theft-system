@@ -20,6 +20,7 @@ from matching import findClosestHuman
 def Scan_for_item_existing(humanDataset, itemDataset):
 	oclussion_check_dist=30   #not sure about this distance
 	pop_item_list=[]
+	pop_human_list=[]
 	for human in humanDataset.values():
 		if human.missing == True:  #True or false
 			for item in human.itemList:
@@ -53,7 +54,8 @@ def Scan_for_item_existing(humanDataset, itemDataset):
 						#Pop_item_from_dataset(item,itemDataset)  #minor Case: disappear at same time
 			if human.itemList == []:
 				print("pop human",human.id,human.missing,human.x,human.y)
-				Pop_human_from_dataset(human,humanDataset)
+				pop_human_list.append(human)
+				#Pop_human_from_dataset(human,humanDataset)
 		else:
 			print("human.item",human.id,human.itemList,human.x,human.y)
 			for item in human.itemList:
@@ -65,7 +67,8 @@ def Scan_for_item_existing(humanDataset, itemDataset):
 					pass    
 	for item in pop_item_list:
 		Pop_item_from_dataset(item,itemDataset)
-										 
+	for human in pop_human_list:
+		Pop_human_from_dataset(human,humanDataset)
 
 
 def Track_and_Display(humanDataset,itemDataset):

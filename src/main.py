@@ -81,7 +81,7 @@ def mainFunc():
 					
 				if human[1][1]>=100:
 						
-					if count>05:
+					if count>30:
 					    print("B stole and fleet")
 					    human[1][2]+=random.random()%25+20
 					    item[0][1]=human[1][1]
