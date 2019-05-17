@@ -82,10 +82,10 @@ def mainFunc():
 				if human[1][1]>=100:
 						
 					if count>80:
-						print("B stole and fleet")
-						human[1][2]+=random.random()%25+20
-						item[0][1]=human[1][1]
-						item[0][2]=human[1][2]
+					    print("B stole and fleet")
+					    human[1][2]+=random.random()%25+20
+					    item[0][1]=human[1][1]
+					    item[0][2]=human[1][2]
 					else:
 						print("B wait for the chance")
 				else:
