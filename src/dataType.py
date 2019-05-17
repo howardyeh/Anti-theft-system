@@ -3,7 +3,7 @@ class humanData:
 	self.x = x
 	self.y = y
 	self.id = idx
-	self.updated = False
+	self.updated = True
 	self.missing = False
 	self.isSuspect = False
 	self.itemList = []
@@ -18,7 +18,7 @@ class itemData:
 	self.x = x
 	self.y = y
 	self.id = idx
-	self.updated = False
+	self.updated = True
 	self.missing = False
 	self.alarm_flag = False
 		
