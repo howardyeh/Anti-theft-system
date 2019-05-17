@@ -22,12 +22,13 @@ def Scan_for_item_existing(humanDataset, itemDataset):
     for human in humanDataset.values():
 	if human.missing == True:  #True or false
 	    for item in human.itemList:
-		cloestHuman,dist=findCloestHuman(item,humanDataset)
-		if itemDataset[item].missing == False: 
+	        cloestHuman,dist=findClosestHuman(itemDataset[item],humanDataset)
+		print("close",cloestHuman)
+                if itemDataset[item].missing == False: 
 		     itemDataset[item].alarm_flag = True
                      if dist>oclussion_check_dist:
-                        cloestHuman.isSuspect=True
-                        #Track_and_display(humanDataset) 
+                        cloestHuman.isSuspect=True 
+                        #Take by suspect explicitly
 		else:
 		    if itemDataset[item].alarm_flag == True:
 		        #cloestHuman,dist=findCloestHuman(item,humanDataset) 
@@ -40,22 +41,22 @@ def Scan_for_item_existing(humanDataset, itemDataset):
                                 cloestHuman.isSuspect=True
                             else:
                                 cloestHuman.isSuspect=False    
-                            
+                                #Oclussion case
 		    else:
 		        Pop_item_from_dataset(item)  #minor Case: disappear at same time
-	     if human.itemList == []:
-	         Pop_human_from_dataset(human)
-         else:
-             for item in human.itemList:
-                 if itemDataset[item].missing ==True:
-                     Pop_item_from_dataset(item)
-                 else:
-                     pass    
+	    if human.itemList == []:
+	        Pop_human_from_dataset(human)
+        else:
+            for item in human.itemList:
+                if itemDataset[item].missing ==True:
+                    Pop_item_from_dataset(item)
+                else:
+                    pass    
 
 										 
 
 
-def Track_and_Display(humanDataset):
+def Track_and_Display(humanDataset,iemDataset):
     human_disp_list=[]
     for human in humandataset:
 	if human.isSuspect==true: 

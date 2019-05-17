@@ -1,5 +1,6 @@
 import numpy as np
 from numpy import linalg as LA
+from dataType import humanData, itemData
 
 ''' 
 Container content :
@@ -21,20 +22,24 @@ calculateDist()
 
 '''
 
-countHuman = 0
-countItem = 0
+global countHuman 
+global countItem 
+countHuman=0
+countItem=0
 
-def humanMatching(image, detection, humanDataset, itemDataset, encoder, missingPeopleDataset):
-
+def humanMatching(image, detection, humanDataset, itemDataset, missingPeopleDataset):
+        #Add by Shawn delete if not need
+        global countHuman
 	distanceThres = 10 # 10 pixel
 	
 	for h_n in detection:
 		find_pair = False
+                
 		hnx = (h_n[0] + h_n[2])/2.0
 		hny = (h_n[1] + h_n[3])/2.0
 
 		for h_d in humanDataset.values():
-			if sqrt((hnx - h_d.x)**2 + (hny - h_d.y)**2) < distanceThres:
+			if np.sqrt((hnx - h_d.x)**2 + (hny - h_d.y)**2) < distanceThres:
 				h_d.update_position(hnx, hny)
 				h_d.updated = True
 				h_d.missing = False
@@ -43,11 +48,14 @@ def humanMatching(image, detection, humanDataset, itemDataset, encoder, missingP
 				break
 
 		if not find_pair:
-			feature = encoder.encode(image[h_n[0]:h_n[2], h_n[1]:h_n[3],:]) # encode the cropped image
-			matchId = matchMissingPeople(feature, missingPeopleDataset)
+                        matchId=None
+                        #commented by shawn, un commented if needed
+			#feature = encoder.encode(image[h_n[0]:h_n[2], h_n[1]:h_n[3],:]) # encode the cropped image
+			#matchId = matchMissingPeople(feature, missingPeopleDataset)
 			
 			if matchId == None:
 				countHuman = countHuman + 1
+                                
 				newHuman = humanData(hnx, hny, countHuman)
 				humanDataset[countHuman] = newHuman
 			
@@ -66,15 +74,16 @@ def humanMatching(image, detection, humanDataset, itemDataset, encoder, missingP
 
 def itemMatching(detection, itemDataset, humanDataset):
 
-	distanceThres = 10 # 10 pixel
-
+	global countItem
+        distanceThres = 10 # 10 pixel
+        
 	for d_n in detection:
 		find_pair = False
 		dnx = (d_n[0] + d_n[2])/2.0
 		dny = (d_n[1] + d_n[3])/2.0
 
 		for d_d in itemDataset.values():
-			if sqrt((dnx - d_d.x)**2 + (dny - d_d.y)**2) < distanceThres:
+			if np.sqrt((dnx - d_d.x)**2 + (dny - d_d.y)**2) < distanceThres:
 				d_d.update_position(dnx, dny)
 				d_d.updated = True
 				d_d.missing = False
@@ -89,7 +98,8 @@ def itemMatching(detection, itemDataset, humanDataset):
 
 	for d_d in itemDataset.values():
 		# what if item get occluded for a frame?
-		if d_d.updated == False and h_d.missing == False:
+                
+		if d_d.updated == False and d_d.missing == False:
 			d_d.missing = True
 
 		d_d.updated = False # reset the update flag for all item in dataset
@@ -99,12 +109,14 @@ def findClosestHuman(item, humanDataset):
 	min_dist = 1000
 	closestHuman = None
 	for human in humanDataset.values():
-		dist = sqrt((item.x - human.x)**2 + (item.y - human.y)**2)
+		dist = np.sqrt((item.x - human.x)**2 + (item.y - human.y)**2)
 		if dist < min_dist:
 			min_dist = dist
 			closestHuman = human
+                        
 	closestHuman.itemList.append(item.id)
-
+        #can i add a return closeHuman (do you need a range around the item?) 
+        return closestHuman,dist
 
 def setAllItemAlarmOff(human, itemDataset):
 	for itemID in human.itemList:

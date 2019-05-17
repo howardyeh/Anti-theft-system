@@ -3,6 +3,7 @@ import math
 from dataType import humanData, itemData
 from autoencoder import Autoencoder
 from matching import humanMatching, itemMatching
+from tracking import Scan_for_item_existing,Track_and_Display
 # from tracking import Scan_for_item_existing, Tracking_suspect, Display
 
 ''' 
@@ -22,13 +23,21 @@ def yolo(human,item,num):
     y_range=[0,200]
     human_list=[]
     item_list=[]
+    res_human=[]
+    res_item=[]
     for i in range(2):
        #print(human[i])
        if human[i][1]<x_range[1] and human[i][1]>x_range[0] and human[i][2]<y_range[1] and human[i][2]>y_range[0]:   
            human_list.append(human[i])
     if item[0][1]<x_range[1] and item[0][1]>x_range[0] and item[0][2]<y_range[1] and item[0][2]>y_range[0]:   
        item_list.append(item[0])
-    return (human_list,item_list)
+    for human in human_list:
+        print(human)
+        res_human.append([human[1]-20,human[2]-50,human[1]+20,human[2]+50])
+    for item in item_list:
+        
+        res_item.append([item[1]-20,item[2]-20,item[1]+20,item[2]+20])
+    return (res_human,res_item)
 
 '''
 TODO
@@ -86,19 +95,19 @@ def mainFunc():
 
     
 
-	# humanDataset = {}
-	# itemDataset = {}
-	# missingPeopleDataset = {}
-	# encoder = Autoencoder()
+	humanDataset = {}
+        image=None
+	itemDataset = {}
+	missingPeopleDataset = {}
+	#encoder = Autoencoder(image)
+	humanMatching(image, detection[0], humanDataset, itemDataset, missingPeopleDataset)
+	itemMatching(detection[1], humanDataset,itemDataset)
+	Scan_for_item_existing(humanDataset,itemDataset)
+	Track_and_Display(humanDataset, itemDataset)
 
-	# humanMatching(image, detection, humanDataset, itemDataset, encoder, missingPeopleDataset))
-	# itemMatching(detection, itemDataset, humanDataset)
-	# Scan_for_item_existing(humanDataset)
-	# Display(humanDataset, itemDataset)
 
 
-
-if name=="__main__":
+if __name__=="__main__":
 	mainFunc()
 
 
