@@ -1,5 +1,6 @@
 import random
 import math
+import numpy as np
 from dataType import humanData, itemData
 from autoencoder import Autoencoder
 from matching import humanMatching, itemMatching
@@ -51,9 +52,9 @@ TODO
 
 def mainFunc():
 	humanDataset = {}
-	image=None
+	image=np.zeros((2000,2000,3))
 	itemDataset = {}
-	missingPeopleDataset = {}
+	missingPeopleDataset = []
 	item0_pos=(100,100)
 	item1_pos=(50,50)
 	people0_pos=(105,105)
@@ -63,6 +64,7 @@ def mainFunc():
 	count=0
 	human={0:["Human A",people0_pos[0],people0_pos[1]],1:["Human B",people1_pos[0],people1_pos[1]]}
 	flag=1
+	encoder = Autoencoder()
 	while count<40:
 		print("=================")
 		print("time stamp:",count)
@@ -100,8 +102,8 @@ def mainFunc():
 	
 
 		
-		#encoder = Autoencoder(image)
-		humanMatching(image, detection[0], humanDataset, itemDataset, missingPeopleDataset)
+		
+		humanMatching(image, detection[0], humanDataset, itemDataset, encoder, missingPeopleDataset)
 		#print("global",humanDataset)
 		#print("item",itemDataset)
 		itemMatching(detection[1], humanDataset,itemDataset)

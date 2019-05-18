@@ -1,5 +1,5 @@
 class humanData:
-	def __init__(self, x, y, idx):
+	def __init__(self, x, y, idx, feature):
 		self.x = x
 		self.y = y
 		self.id = idx
@@ -8,6 +8,7 @@ class humanData:
 		self.isSuspect = False
 		self.itemList = []
 		self.stolenitemDict={}
+		self.feature = feature
 	def update_position(self, nx, ny):
 		self.x = nx
 		self.y = ny
