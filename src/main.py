@@ -83,7 +83,7 @@ def mainFunc():
 						
 					if count>30:
 					    print("B stole and fleet")
-					    human[1][2]+=random.random()%25+20
+					    human[1][2]+=random.random()%5+10
 					    item[0][1]=human[1][1]
 					    item[0][2]=human[1][2]
 					else:
@@ -102,11 +102,11 @@ def mainFunc():
 		
 		#encoder = Autoencoder(image)
 		humanMatching(image, detection[0], humanDataset, itemDataset, missingPeopleDataset)
-		print("global",humanDataset)
-		print("item",itemDataset)
+		#print("global",humanDataset)
+		#print("item",itemDataset)
 		itemMatching(detection[1], humanDataset,itemDataset)
-		print("global11111",humanDataset)
-		print("item22222",itemDataset)
+		#print("global11111",humanDataset)
+		#print("item22222",itemDataset)
 		Scan_for_item_existing(humanDataset,itemDataset)
 		Track_and_Display(humanDataset, itemDataset)
 
