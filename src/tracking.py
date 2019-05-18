@@ -26,26 +26,36 @@ def Scan_for_item_existing(humanDataset, itemDataset):
 			for item in human.itemList:
 
 				cloestHuman,dist=findClosestHuman(itemDataset[item],humanDataset)
-				#print("item",itemDataset[item].id,itemDataset[item].missing)
+				print("item",itemDataset[item].id,itemDataset[item].missing)
 				if itemDataset[item].missing == False: 
 					#print("itemflag1",itemDataset[item].alarm_flag)
 					itemDataset[item].alarm_flag = True
-					if dist>oclussion_check_dist:
-						cloestHuman.isSuspect=True 
+					if dist>oclussion_check_dist :
+						if cloestHuman.isSuspect==True:
+							cloestHuman.stolenitemDict[item]=itemDataset[item]
+						#cloestHuman.isSuspect=True 
 						#Take by suspect explicitly
+					else:
+						print("in range",cloestHuman.id,dist)
+						cloestHuman.isSuspect=True
 				else:
-					#print("itemflag2",item,itemDataset[item].alarm_flag)
+					print("itemflag2",item,itemDataset[item].alarm_flag)
 					
 					if itemDataset[item].alarm_flag == True:
 						#cloestHuman,dist=findCloestHuman(item,humanDataset) 
 						
 						if cloestHuman.isSuspect==True:
-							pass 
+							if dist>oclussion_check_dist:
+								cloestHuman.stolenitemDict[item]=itemDataset[item]
+								print("add to dict")
+							#else:
+							#	cloestHuman.isSuspect=False 
 							#Track_and_display(humanDataset) will used in main function   
 						else:
-							if dist>oclussion_chek_dist:
-								#print("A",dist)
+							if dist<oclussion_chek_dist:
+								print("A",dist)
 								cloestHuman.isSuspect=True
+								#cloestHuman.stolenitemDict[item]=itemDataset[item]
 							else:
 								cloestHuman.isSuspect=False    
 								#Oclussion case
@@ -75,7 +85,8 @@ def Scan_for_item_existing(humanDataset, itemDataset):
 def Track_and_Display(humanDataset,itemDataset):
 	human_disp_list=[]
 	for human in humanDataset.values():
-		if human.isSuspect==True: 
+		#print(human.stolenitemDict)
+		if human.isSuspect==True and len(human.stolenitemDict)!=0: 
 			#bounded with red color
 			human_disp_list.append([human.id,"red"])
 		else: 

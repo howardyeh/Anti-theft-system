@@ -7,7 +7,7 @@ class humanData:
 		self.missing = False
 		self.isSuspect = False
 		self.itemList = []
-
+		self.stolenitemDict={}
 	def update_position(self, nx, ny):
 		self.x = nx
 		self.y = ny
