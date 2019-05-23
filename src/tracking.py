@@ -21,6 +21,7 @@ def Scan_for_item_existing(humanDataset, itemDataset):
 	pop_item_list=[]
 	pop_human_list=[]
 	for human in humanDataset.values():
+
 		if human.missing == True:  #True or falsue
 			#print("humanmissing",human.x,human.y)
 			for item in human.itemList:
@@ -70,6 +71,7 @@ def Scan_for_item_existing(humanDataset, itemDataset):
 		else:
 			#print("human.item",human.id,human.itemList,human.x,human.y)
 			for item in human.itemList:
+				print(item,human.id)
 				if itemDataset[item].missing ==True:
 					print("pop item when item missing")
 					#Pop_item_from_dataset(item,itemDataset)

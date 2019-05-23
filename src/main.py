@@ -5,6 +5,10 @@ from dataType import humanData, itemData
 from autoencoder import Autoencoder
 from matching import humanMatching, itemMatching
 from tracking import Scan_for_item_existing,Track_and_Display
+import os
+import argparse
+import re
+import string 
 # from tracking import Scan_for_item_existing, Tracking_suspect, Display
 
 ''' 
@@ -28,9 +32,6 @@ class Simulation:
 		
 		self.human={0:["Human A",self.people0_pos[0],self.people0_pos[1]],1:["Human B",self.people1_pos[0],self.people1_pos[1]]}
 		
-
-
-
 	def yolo(self):
 		#print(num)
 		x_range=[0,200]
@@ -52,9 +53,6 @@ class Simulation:
 			print("in yolo",item)
 			res_item.append([item[1]-20,item[2]-20,item[1]+20,item[2]+20])
 		return (res_human,res_item)
-
-	
-		
 
 	def iteration(self,count):
 		
@@ -92,7 +90,6 @@ class Simulation:
 		return detection
 
 
-
 '''
 TODO
 1.Background segmentation
@@ -103,28 +100,72 @@ TODO
 6.Findclosethuman
 '''
 
+
+
+def arg_parse():
+
+	parser = argparse.ArgumentParser(description='Anti-theft system')
+   
+	parser.add_argument("--dataset",dest="dataset",help="bouding box info",
+		default="../dataset/data1.txt")
+	return parser.parse_args()
+
 def mainFunc():
+	args = arg_parse()
+	dir_name=args.dataset
+	print("---",dir_name)
+	f= open(dir_name,'r')
+	line =f.readlines()
+
+
 	humanDataset = {}
 	image=np.zeros((2000,2000,3))
 	itemDataset = {}
 	missingPeopleDataset = []
-	test=Simulation()
-	count=0
+	#test=Simulation()
+	#count=0
 	
+	encoder = Autoencoder()
 
-	while count<40:
-	
-		detection=test.iteration(count)
-		encoder = Autoencoder()
-		humanMatching(image, detection[0], humanDataset, itemDataset, encoder, missingPeopleDataset)
-		#print("global",humanDataset)
-		#print("item",itemDataset)
-		itemMatching(detection[1], humanDataset,itemDataset)
+	#while count<40:
+	count=0
+	for detection in line:
+		print("=================")
+		print("time stamp:",count)
+		print(detection)
+		detection = detection[2:-3]
+		detection=detection.split('],[')
+		detection_list=[]
+		human_list=[]
+		item_list=[]
+		item_class=[]
+		for detect in detection:
+			detect=detect.split(', ')
+			det_pos=[int(i) for i in detect[0:-1]]
+			det_class=detect[-1].strip("''")		
+			detection_list.append([det_pos,det_class])
+
+		for dect in detection_list:
+			
+			if dect[-1]=='person':
+				human_list.append(dect[0:-1])
+			else:
+				item_list.append(dect[0:-1])
+				item_class.append(dect[-1])
+			
+		if human_list!=[]:
+			humanMatching(image, human_list[0], humanDataset, itemDataset, encoder, missingPeopleDataset)
+		print("human",humanDataset.keys())
+		if item_list!=[]:
+			itemMatching(item_list[0], humanDataset,itemDataset)
+		print("item",itemDataset.keys())
+		count+=1
+			
 		#print("global11111",humanDataset)
 		#print("item22222",itemDataset)
-		Scan_for_item_existing(humanDataset,itemDataset)
-		Track_and_Display(humanDataset, itemDataset)
-		count+=1
+		#Scan_for_item_existing(humanDataset,itemDataset)
+		#Track_and_Display(humanDataset, itemDataset)
+		#count+=1
 
 
 

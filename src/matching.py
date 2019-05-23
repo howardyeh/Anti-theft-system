@@ -36,6 +36,7 @@ def humanMatching(image, detection, humanDataset, itemDataset, encoder, missingP
 	
 	for h_n in detection:
 		find_pair = False
+
 				
 		hnx = (h_n[0] + h_n[2])/2.0
 		hny = (h_n[1] + h_n[3])/2.0
@@ -86,8 +87,10 @@ def itemMatching(detection, humanDataset,itemDataset):
 		
 	for d_n in detection:
 		find_pair = False
+
 		dnx = (d_n[0] + d_n[2])/2.0
 		dny = (d_n[1] + d_n[3])/2.0
+
 
 		for d_d in itemDataset.values():
 			if np.sqrt((dnx - d_d.x)**2 + (dny - d_d.y)**2) < distanceThres:
