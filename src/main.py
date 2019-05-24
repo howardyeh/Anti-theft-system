@@ -120,6 +120,8 @@ def arg_parse():
 	parser.add_argument("--video", dest = 'video', help = 
 						"Video to run detection upon",
 						default = "video.avi", type = str)
+	parser.add_argument("--det", dest = 'det', help ="Image / Directory to store detections to",
+						default = "../dataset/det", type = str)
 	#parser.add_argument("--dataset", dest = "dataset", help = "Dataset on which the network has been trained", default = "pascal")
 	parser.add_argument("--confidence", dest = "confidence", help = "Object Confidence to filter predictions", default = 0.5)
 	parser.add_argument("--nms_thresh", dest = "nms_thresh", help = "NMS Threshhold", default = 0.4)
@@ -129,7 +131,7 @@ def arg_parse():
 						default = "../model/yolov3.weights", type = str)
 	parser.add_argument("--reso", dest = 'reso', help = "Input resolution of the network. Increase to increase accuracy. Decrease to increase speed",
 						default = "416", type = str)
-	parser.add_argument("--dataset",dest="dataset",help="bouding box info",
+	parser.add_argument("--dataset",dest="dataset",help="original image",
 		default="../dataset/imgs")
 	return parser.parse_args()
 
@@ -198,6 +200,8 @@ if __name__=="__main__":
 	colors = pkl.load(open("../model/pallete", "rb"))
 	f=open('../dataset/bbox_data.txt','a+')
 	args = arg_parse()
+	if not os.path.exists(args.det):
+		os.makedirs(args.det)
 	confidence = float(args.confidence)
 	nms_thesh = float(args.nms_thresh)
 	start = 0
@@ -205,6 +209,8 @@ if __name__=="__main__":
 	num_classes = 80
 	CUDA = torch.cuda.is_available()  
 	bbox_attrs = 5 + num_classes
+	
+	#construct a model
 	print("Loading network.....")
 	model = Darknet(args.cfgfile)
 	model.load_weights(args.weightsfile)
@@ -219,18 +225,16 @@ if __name__=="__main__":
 	if CUDA:
 		model.cuda()
 		
-	#model(get_test_input(inp_dim, CUDA), CUDA)
 	model.eval()
 	frames = 0
 	start = time.time()
 
-
+	#Construct an empty dataset for human and item
 	humanDataset = {}
 	image=np.zeros((2000,2000,3))
 	itemDataset = {}
 	missingPeopleDataset = []
 	#test=Simulation()
-	#count=0
 	
 	encoder = Autoencoder()
 	
@@ -238,9 +242,7 @@ if __name__=="__main__":
 	count=0
 	file=os.listdir(dir_name)
 	
-	
 	file.sort(key=lambda f: int(''.join(filter(str.isdigit, f))))
-	#print(file)
 	im_id_list=[]
 
 
@@ -289,6 +291,8 @@ if __name__=="__main__":
 		frame=os.path.join(dir_name,filename)
 		print(frame)
 		
+		
+		
 		img, orig_im, dim = prep_image(frame, inp_dim)
 		im_dim = torch.FloatTensor(dim).repeat(1,2)
 		if CUDA:
@@ -322,7 +326,9 @@ if __name__=="__main__":
 		
 		detection=[]
 		list(map(lambda x: write(x, orig_im,im_id_list,detection), output))
-		print("detection",detection)
+		#print("detection",filename.split('.')[0])
+		#print(args.det+"/"+filename.split('.')[0])
+		#list(map(cv2.imwrite, args.det+"/"+filename, orig_im))
 		
 		#print("FPS of the video is {:5.2f}".format( frames / (time.time() - start)))
 		
@@ -347,12 +353,15 @@ if __name__=="__main__":
 		print("item",itemDataset.keys())
 		count+=1
 		font = cv2.FONT_HERSHEY_SIMPLEX
-		cv2.putText(orig_im,str(humanDataset.keys()),(30,40),font,1,(0,0,0),2)
-		for i in range(0,int(len(humanDataset.keys())/12)):
-			cv2.putText(orig_im,str(i),(100,100),font,1,(0,0,0),2)
-			cv2.putText(orig_im,str(list(itemDataset.keys())[(i-1)*10:i*12]),(10,70+i*30),font,1,(0,0,0),2)
-		if(i>1):
-			cv2.putText(orig_im,str(list(itemDataset.keys())[(i)*10:-1]),(30,70+(i+1)*30),font,1,(0,0,0),2)
+		cv2.putText(orig_im,filename,(30,40),font,1,(0,0,0),2)
+		cv2.putText(orig_im,"human"+str(list(humanDataset.keys())),(30,80),font,1,(0,0,0),2)
+		for i in range(0,math.floor(len(itemDataset.keys())/10)+1,1):
+			if i==0:
+				cv2.putText(orig_im,"item:"+str(list(itemDataset.keys())[(i)*10:(i+1)*10]),(30,120+i*40),font,1,(0,0,0),2)
+			else:
+				cv2.putText(orig_im,str(list(itemDataset.keys())[(i)*10:(i+1)*10]),(30,120+i*40),font,1,(0,0,0),2)
+		#if (i!=0):
+			#cv2.putText(orig_im,str(list(itemDataset.keys())[(i+1)*10:]),(30,90+(i+1)*40),font,1,(0,0,0),2)
 
 
 
