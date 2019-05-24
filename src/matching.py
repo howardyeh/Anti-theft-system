@@ -130,10 +130,10 @@ def findClosestHuman(item, humanDataset):
 		if dist < min_dist:
 			min_dist = dist
 			closestHuman = human
-
-	closestHuman.itemList.append(item.id)
+	if closestHuman!=None:
+		closestHuman.itemList.append(item.id)
 	#can i add a return closeHuman (do you need a range around the item?) 
-	return closestHuman, dist
+	
 
 
 def setAllItemAlarmOff(human, itemDataset):

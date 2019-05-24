@@ -1,14 +1,27 @@
 import random
 import math
 import numpy as np
+import time
+import torch 
+import torch.nn as nn
+import cv2 
+from torch.autograd import Variable
 from dataType import humanData, itemData
 from autoencoder import Autoencoder
 from matching import humanMatching, itemMatching
 from tracking import Scan_for_item_existing,Track_and_Display
+import pandas as pd
+import random 
+import pickle as pkl
 import os
 import argparse
 import re
 import string 
+import sys
+from util import *
+from darknet import Darknet
+from preprocess import prep_image, inp_to_image, letterbox_image
+import pandas as pd
 # from tracking import Scan_for_item_existing, Tracking_suspect, Display
 
 ''' 
@@ -94,10 +107,9 @@ class Simulation:
 TODO
 1.Background segmentation
 2.QUERY(feature matching)
-3.Popping function
-4.Yolov3 (detection)
-5.SetAllAlarmOff
-6.Findclosethuman
+4.Yolov3 (offline)
+5.Yolov3 (Online)
+
 '''
 
 
@@ -105,15 +117,27 @@ TODO
 def arg_parse():
 
 	parser = argparse.ArgumentParser(description='Anti-theft system')
-   
+	parser.add_argument("--video", dest = 'video', help = 
+						"Video to run detection upon",
+						default = "video.avi", type = str)
+	#parser.add_argument("--dataset", dest = "dataset", help = "Dataset on which the network has been trained", default = "pascal")
+	parser.add_argument("--confidence", dest = "confidence", help = "Object Confidence to filter predictions", default = 0.5)
+	parser.add_argument("--nms_thresh", dest = "nms_thresh", help = "NMS Threshhold", default = 0.4)
+	parser.add_argument("--cfg", dest = 'cfgfile', help = "Config file",
+						default = "../cfg/yolov3.cfg", type = str)
+	parser.add_argument("--weights", dest = 'weightsfile', help = "weightsfile",
+						default = "../model/yolov3.weights", type = str)
+	parser.add_argument("--reso", dest = 'reso', help = "Input resolution of the network. Increase to increase accuracy. Decrease to increase speed",
+						default = "416", type = str)
 	parser.add_argument("--dataset",dest="dataset",help="bouding box info",
-		default="../dataset/data1.txt")
+		default="../dataset/imgs")
 	return parser.parse_args()
 
-def mainFunc():
+
+
+def mainFunc_for_bbox_txt():
 	args = arg_parse()
 	dir_name=args.dataset
-	print("---",dir_name)
 	f= open(dir_name,'r')
 	line =f.readlines()
 
@@ -129,6 +153,7 @@ def mainFunc():
 
 	#while count<40:
 	count=0
+
 	for detection in line:
 		print("=================")
 		print("time stamp:",count)
@@ -167,9 +192,188 @@ def mainFunc():
 		#Track_and_Display(humanDataset, itemDataset)
 		#count+=1
 
-
-
 if __name__=="__main__":
-	mainFunc()
 
+	classes = load_classes('../data/coco.names')
+	colors = pkl.load(open("../model/pallete", "rb"))
+	f=open('../dataset/bbox_data.txt','a+')
+	args = arg_parse()
+	confidence = float(args.confidence)
+	nms_thesh = float(args.nms_thresh)
+	start = 0
+	dir_name=args.dataset
+	num_classes = 80
+	CUDA = torch.cuda.is_available()  
+	bbox_attrs = 5 + num_classes
+	print("Loading network.....")
+	model = Darknet(args.cfgfile)
+	model.load_weights(args.weightsfile)
+	print("Network successfully loaded")
+	model.net_info["height"] = args.reso
+	inp_dim = int(model.net_info["height"])
+
+
+	assert inp_dim % 32 == 0 
+	assert inp_dim > 32
+
+	if CUDA:
+		model.cuda()
+		
+	#model(get_test_input(inp_dim, CUDA), CUDA)
+	model.eval()
+	frames = 0
+	start = time.time()
+
+
+	humanDataset = {}
+	image=np.zeros((2000,2000,3))
+	itemDataset = {}
+	missingPeopleDataset = []
+	#test=Simulation()
+	#count=0
+	
+	encoder = Autoencoder()
+	
+	#while count<40:
+	count=0
+	file=os.listdir(dir_name)
+	
+	
+	file.sort(key=lambda f: int(''.join(filter(str.isdigit, f))))
+	#print(file)
+	im_id_list=[]
+
+
+	def write(x, img,im_id_list,detection):
+		c1 = tuple(x[1:3].int())
+		c2 = tuple(x[3:5].int())
+		cls = int(x[-1])
+		label = "{0}".format(classes[cls])
+		color = random.choice(colors)
+		cv2.rectangle(img, c1, c2,color, 1)
+		t_size = cv2.getTextSize(label, cv2.FONT_HERSHEY_PLAIN, 1 , 1)[0]
+		c2 = c1[0] + t_size[0] + 3, c1[1] + t_size[1] + 4
+		cv2.rectangle(img, c1, c2,color, -1)
+		cv2.putText(img, label, (c1[0], c1[1] + t_size[1] + 4), cv2.FONT_HERSHEY_PLAIN, 1, [225,255,255], 1);
+		def write_in_file():
+			#print(str([c1[0].cpu().detach().numpy().tolist(),c1[1].cpu().detach().numpy().tolist(),c2[0].cpu().detach().numpy().tolist(),c2[1].cpu().detach().numpy().tolist(),classes[cls]]))
+			detection.append([c1[0].cpu().detach().numpy().tolist(),c1[1].cpu().detach().numpy().tolist(),
+				c2[0].cpu().detach().numpy().tolist(),c2[1].cpu().detach().numpy().tolist(),classes[cls]])
+			if im_id_list==[]:
+				#print(x[0].cpu().detach().numpy().tolist())
+				f.write("[")
+				f.write(str([c1[0].cpu().detach().numpy().tolist(),c1[1].cpu().detach().numpy().tolist(),c2[0].cpu().detach().numpy().tolist()\
+					,c2[1].cpu().detach().numpy().tolist(),classes[cls]]))
+
+				im_id_list.append(x[0].cpu().detach().tolist())
+				
+			elif x[0]==im_id_list[-1]:
+				f.write(",")
+				f.write(str([c1[0].cpu().detach().numpy().tolist(),c1[1].cpu().detach().numpy().tolist(),c2[0].cpu().detach().numpy().tolist(),c2[1].cpu().detach().numpy().tolist(),classes[cls]]))
+			else:
+				f.write("]\n[")		
+				f.write(str([c1[0].cpu().detach().numpy().tolist(),c1[1].cpu().detach().numpy().tolist(),c2[0].cpu().detach().numpy().tolist(),c2[1].cpu().detach().numpy().tolist(),classes[cls]]))
+				im_id_list.append(x[0].cpu().detach().tolist())
+
+		write_in_file()
+		
+		return img
+
+
+
+
+
+	for filename in file:
+		print("=================")
+		#print("time stamp:",count)
+		frame=os.path.join(dir_name,filename)
+		print(frame)
+		
+		img, orig_im, dim = prep_image(frame, inp_dim)
+		im_dim = torch.FloatTensor(dim).repeat(1,2)
+		if CUDA:
+			im_dim = im_dim.cuda()
+			img = img.cuda()
+		
+		with torch.no_grad():   
+			output = model(Variable(img), CUDA)
+		output = write_results(output, confidence, num_classes, nms = True, nms_conf = nms_thesh)
+
+		if type(output) == int:
+			frames += 1
+			print("FPS of the video is {:5.2f}".format( frames / (time.time() - start)))
+			cv2.imshow("frame", orig_im)
+			key = cv2.waitKey(1)
+			if key & 0xFF == ord('q'):
+				break
+			continue
+
+		im_dim = im_dim.repeat(output.size(0), 1)
+		scaling_factor = torch.min(inp_dim/im_dim,1)[0].view(-1,1)
+		
+		output[:,[1,3]] -= (inp_dim - scaling_factor*im_dim[:,0].view(-1,1))/2
+		output[:,[2,4]] -= (inp_dim - scaling_factor*im_dim[:,1].view(-1,1))/2
+		
+		output[:,1:5] /= scaling_factor
+
+		for i in range(output.shape[0]):
+			output[i, [1,3]] = torch.clamp(output[i, [1,3]], 0.0, im_dim[i,0])
+			output[i, [2,4]] = torch.clamp(output[i, [2,4]], 0.0, im_dim[i,1])
+		
+		detection=[]
+		list(map(lambda x: write(x, orig_im,im_id_list,detection), output))
+		print("detection",detection)
+		
+		#print("FPS of the video is {:5.2f}".format( frames / (time.time() - start)))
+		
+		detection_list=[]
+		human_list=[]
+		item_list=[]
+		item_class=[]
+		for dect in detection:
+			#print(dect)
+			
+			if dect[-1]=='person':
+				human_list.append(dect[0:-1])
+			else:
+				item_list.append(dect[0:-1])
+				item_class.append(dect[-1])
+				
+		if human_list!=[]:
+			humanMatching(image, human_list, humanDataset, itemDataset, encoder, missingPeopleDataset)
+		print("human",humanDataset.keys())
+		if item_list!=[]:
+			itemMatching(item_list, humanDataset,itemDataset)
+		print("item",itemDataset.keys())
+		count+=1
+		font = cv2.FONT_HERSHEY_SIMPLEX
+		cv2.putText(orig_im,str(humanDataset.keys()),(30,40),font,1,(0,0,0),2)
+		for i in range(0,int(len(humanDataset.keys())/12)):
+			cv2.putText(orig_im,str(i),(100,100),font,1,(0,0,0),2)
+			cv2.putText(orig_im,str(list(itemDataset.keys())[(i-1)*10:i*12]),(10,70+i*30),font,1,(0,0,0),2)
+		if(i>1):
+			cv2.putText(orig_im,str(list(itemDataset.keys())[(i)*10:-1]),(30,70+(i+1)*30),font,1,(0,0,0),2)
+
+
+
+
+		cv2.imshow("frame", orig_im)
+		key = cv2.waitKey(2)
+		if key & 0xFF == ord('q'):
+			break
+		frames += 1
+			
+		#print("global11111",humanDataset)
+		#print("item22222",itemDataset)
+		#Scan_for_item_existing(humanDataset,itemDataset)
+		#Track_and_Display(humanDataset, itemDataset)
+		#count+=1
+
+	print(im_id_list)
+	
+
+
+
+
+	
 
