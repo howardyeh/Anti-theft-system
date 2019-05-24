@@ -44,6 +44,7 @@ def humanMatching(image, detection, humanDataset, itemDataset, encoder, missingP
 		# print("detected human in ", hnx, hny)
 		for h_d in humanDataset.values():
 			# print("dataset human in ", h_d.x, h_d.y)
+			print("human distance",np.sqrt((hnx - h_d.x)**2 + (hny - h_d.y)**2),distanceThres)
 			if h_d.missing == False and np.sqrt((hnx - h_d.x)**2 + (hny - h_d.y)**2) < distanceThres:
 				h_d.update_position(hnx, hny)
 				h_d.updated = True
@@ -83,7 +84,7 @@ def humanMatching(image, detection, humanDataset, itemDataset, encoder, missingP
 def itemMatching(detection, humanDataset,itemDataset):
 
 	global countItem
-	distanceThres = 20
+	distanceThres = 60
 		
 	for d_n in detection:
 		find_pair = False
@@ -93,6 +94,7 @@ def itemMatching(detection, humanDataset,itemDataset):
 
 
 		for d_d in itemDataset.values():
+			print("item distance: ",((dnx - d_d.x)**2 + (dny - d_d.y)**2),distanceThres)
 			if np.sqrt((dnx - d_d.x)**2 + (dny - d_d.y)**2) < distanceThres:
 				if d_d.alarm_flag == False:
 					d_d.update_position(dnx, dny)

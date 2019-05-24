@@ -326,13 +326,13 @@ if __name__=="__main__":
 		
 		detection=[]
 		list(map(lambda x: write(x, orig_im,im_id_list,detection), output))
-		
+		print("det",detection)
 
 	
 		#Use this line to save the file
 		#list(map(cv2.imwrite, args.det+"/"+filename, orig_im))
 		
-		print("FPS of the video is {:5.2f}".format( frames / (time.time() - start)))
+		#print("FPS of the video is {:5.2f}".format( frames / (time.time() - start)))
 		
 		detection_list=[]
 		human_list=[]
@@ -376,7 +376,7 @@ if __name__=="__main__":
 			
 		#print("global11111",humanDataset)
 		#print("item22222",itemDataset)
-		#Scan_for_item_existing(humanDataset,itemDataset)
+		Scan_for_item_existing(humanDataset,itemDataset)
 		#Track_and_Display(humanDataset, itemDataset)
 		#count+=1
 

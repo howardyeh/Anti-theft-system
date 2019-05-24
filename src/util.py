@@ -95,6 +95,46 @@ def unique(tensor):
     tensor_res = tensor.new(unique_tensor.shape)
     tensor_res.copy_(unique_tensor)
     return tensor_res
+    
+def write(x, batches, results,f):
+        c1 = tuple(x[1:3].int())
+        c2 = tuple(x[3:5].int())
+        
+        img = results[int(x[0])]
+        cls = int(x[-1])
+        label = "{0}".format(classes[cls])
+        color = random.choice(colors)
+        cv2.rectangle(img, c1, c2,color, 1)
+        t_size = cv2.getTextSize(label, cv2.FONT_HERSHEY_PLAIN, 1 , 1)[0]
+        c2 = c1[0] + t_size[0] + 3, c1[1] + t_size[1] + 4
+        cv2.rectangle(img, c1, c2,color, -1)
+        cv2.putText(img, label, (c1[0], c1[1] + t_size[1] + 4), cv2.FONT_HERSHEY_PLAIN, 1, [225,255,255], 1)
+
+        def write_in_file():
+            print(str([c1[0].cpu().detach().numpy().tolist(),c1[1].cpu().detach().numpy().tolist(),c2[0].cpu().detach().numpy().tolist(),c2[1].cpu().detach().numpy().tolist(),classes[cls]]))
+            
+            if im_id_list==[]:
+                print(x[0].cpu().detach().numpy().tolist())
+                f.write("[")
+                f.write(str([c1[0].cpu().detach().numpy().tolist(),c1[1].cpu().detach().numpy().tolist(),c2[0].cpu().detach().numpy().tolist()\
+                    ,c2[1].cpu().detach().numpy().tolist(),classes[cls]]))
+
+                im_id_list.append(x[0].cpu().detach().tolist())
+            elif x[0]==im_id_list[-1]:
+                f.write(",")
+                f.write(str([c1[0].cpu().detach().numpy().tolist(),c1[1].cpu().detach().numpy().tolist(),c2[0].cpu().detach().numpy().tolist(),c2[1].cpu().detach().numpy().tolist(),classes[cls]]))
+            else:
+                f.write("]\n[")     
+                f.write(str([c1[0].cpu().detach().numpy().tolist(),c1[1].cpu().detach().numpy().tolist(),c2[0].cpu().detach().numpy().tolist(),c2[1].cpu().detach().numpy().tolist(),classes[cls]]))
+                im_id_list.append(x[0].cpu().detach().tolist())
+
+        #write_in_file()
+            
+        
+        
+        
+                
+        return img
 
 def write_results(prediction, confidence, num_classes, nms = True, nms_conf = 0.4):
     conf_mask = (prediction[:,:,4] > confidence).float().unsqueeze(2)
