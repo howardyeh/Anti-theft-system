@@ -251,9 +251,11 @@ if __name__=="__main__":
 		c1 = tuple(x[1:3].int())
 		c2 = tuple(x[3:5].int())
 		cls = int(x[-1])
+
+		#only draw item bounding box 
 		label = "{0}".format(classes[cls])
 		color = random.choice(colors)
-		cv2.rectangle(img, c1, c2,color, 1)
+		cv2.rectangle(img, c1, c2,color, 1)		
 		t_size = cv2.getTextSize(label, cv2.FONT_HERSHEY_PLAIN, 1 , 1)[0]
 		c2 = c1[0] + t_size[0] + 3, c1[1] + t_size[1] + 4
 		cv2.rectangle(img, c1, c2,color, -1)
@@ -372,17 +374,20 @@ if __name__=="__main__":
 
 
 
-		cv2.imshow("frame", orig_im)
-		key = cv2.waitKey(2)
-		if key & 0xFF == ord('q'):
-			break
-		frames += 1
+		
 			
 		#print("global11111",humanDataset)
 		#print("item22222",itemDataset)
 		Scan_for_item_existing(humanDataset,itemDataset)
 		Track_and_Display(humanDataset, itemDataset)
 		#count+=1
+
+
+		cv2.imshow("frame", orig_im)
+		key = cv2.waitKey(2)
+		if key & 0xFF == ord('q'):
+			break
+		frames += 1
 
 	print(im_id_list)
 	

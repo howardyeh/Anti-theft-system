@@ -17,7 +17,7 @@ Display()
 from dataType import humanData,itemData
 import numpy as np
 def Scan_for_item_existing(humanDataset, itemDataset):
-	oclussion_check_dist=30   #not sure about this distance
+	oclussion_check_dist=280  #not sure about this distance
 	pop_item_list=[]
 	pop_human_list=[]
 	for human in humanDataset.values():
@@ -44,7 +44,7 @@ def Scan_for_item_existing(humanDataset, itemDataset):
 					
 					if itemDataset[item].alarm_flag == True:
 						#cloestHuman,dist=findCloestHuman(item,humanDataset) 
-						
+						print("=======alarm",itemDataset[item].id)
 						if cloestHuman.isSuspect==True:
 							if dist>oclussion_check_dist:
 								cloestHuman.stolenitemDict[item]=itemDataset[item]
@@ -54,10 +54,11 @@ def Scan_for_item_existing(humanDataset, itemDataset):
 							#Track_and_display(humanDataset) will used in main function   
 						else:
 							if dist<oclussion_check_dist:
-								print("A",dist)
+								print("less than oclussion",dist,oclussion_check_dist)
 								cloestHuman.isSuspect=True
 								#cloestHuman.stolenitemDict[item]=itemDataset[item]
 							else:
+								print("greter than oclussion",dist,oclussion_check_dist)
 								cloestHuman.isSuspect=False    
 								#Oclussion case
 					else:

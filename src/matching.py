@@ -32,7 +32,7 @@ countItem=0
 def humanMatching(image, detection, humanDataset, itemDataset, encoder, missingPeopleDataset):
 
 	global countHuman
-	distanceThres = 70
+	distanceThres = 120
 	
 	for h_n in detection:
 		find_pair = False
