@@ -247,7 +247,7 @@ if __name__=="__main__":
 	im_id_list=[]
 
 
-	def write(x, img,im_id_list,detection):
+	def detecting_function(x, img,detection):
 		c1 = tuple(x[1:3].int())
 		c2 = tuple(x[3:5].int())
 		cls = int(x[-1])
@@ -331,7 +331,7 @@ if __name__=="__main__":
 			output[i, [2,4]] = torch.clamp(output[i, [2,4]], 0.0, im_dim[i,1])
 		
 		detection=[]
-		list(map(lambda x: write(x, orig_im,im_id_list,detection), output))
+		list(map(lambda x: detecting_function(x, orig_im,detection), output))
 		print("det",detection)
 
 	
@@ -379,7 +379,7 @@ if __name__=="__main__":
 		#print("global11111",humanDataset)
 		#print("item22222",itemDataset)
 		Scan_for_item_existing(humanDataset,itemDataset)
-		Track_and_Display(humanDataset, itemDataset)
+		Track_and_Display(humanDataset, itemDataset,orig_im,output,classes,colors)
 		#count+=1
 
 

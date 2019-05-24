@@ -16,6 +16,8 @@ Display()
 '''
 from dataType import humanData,itemData
 import numpy as np
+import random
+import cv2
 def Scan_for_item_existing(humanDataset, itemDataset):
 	oclussion_check_dist=280  #not sure about this distance
 	pop_item_list=[]
@@ -44,7 +46,7 @@ def Scan_for_item_existing(humanDataset, itemDataset):
 					
 					if itemDataset[item].alarm_flag == True:
 						#cloestHuman,dist=findCloestHuman(item,humanDataset) 
-						print("=======alarm",itemDataset[item].id)
+						print("=======alarm item: ",itemDataset[item].id)
 						if cloestHuman.isSuspect==True:
 							if dist>oclussion_check_dist:
 								cloestHuman.stolenitemDict[item]=itemDataset[item]
@@ -87,7 +89,22 @@ def Scan_for_item_existing(humanDataset, itemDataset):
 		Pop_human_from_dataset(human,humanDataset)
 
 
-def Track_and_Display(humanDataset,itemDataset):
+def Track_and_Display(humanDataset,itemDataset,orig_im,output,classes,colors):
+	def drawing(x, img):
+		c1 = tuple(x[1:3].int())
+		c2 = tuple(x[3:5].int())
+		cls = int(x[-1])
+
+		#only draw item bounding box 
+		label = "{0}".format(classes[cls])
+		color = random.choice(colors)
+		cv2.rectangle(img, c1, c2,color, 1)		
+		t_size = cv2.getTextSize(label, cv2.FONT_HERSHEY_PLAIN, 1 , 1)[0]
+		c2 = c1[0] + t_size[0] + 3, c1[1] + t_size[1] + 4
+		cv2.rectangle(img, c1, c2,color, -1)
+		cv2.putText(img, label, (c1[0], c1[1] + t_size[1] + 4), cv2.FONT_HERSHEY_PLAIN, 1, [225,255,255], 1);
+			
+		
 	human_disp_list=[]
 	for human in humanDataset.values():
 		print(human.id,human.isSuspect,human.stolenitemDict)
@@ -99,6 +116,10 @@ def Track_and_Display(humanDataset,itemDataset):
 			if human.missing ==False:
 				human_disp_list.append([human.id,"black"])
 	print(human_disp_list)
+	list(map(lambda x: drawing(x, orig_im), output))
+
+
+
 
 
 def Pop_item_from_dataset(item,itemDataset):
