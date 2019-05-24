@@ -24,10 +24,10 @@ def Scan_for_item_existing(humanDataset, itemDataset):
 
 		if human.missing == True:  #True or falsue
 			#print("humanmissing",human.x,human.y)
-			for item in human.itemList:
+			for index,item in enumerate(human.itemList):
 
 				cloestHuman,dist=findClosestHuman(itemDataset[item],humanDataset)
-				print("item",itemDataset[item].id,itemDataset[item].missing)
+				#print("item",itemDataset[item].id,itemDataset[item].missing)
 				if itemDataset[item].missing == False: 
 					#print("itemflag1",itemDataset[item].alarm_flag)
 					itemDataset[item].alarm_flag = True
@@ -37,10 +37,10 @@ def Scan_for_item_existing(humanDataset, itemDataset):
 						#cloestHuman.isSuspect=True 
 						#Take by suspect explicitly
 					else:
-						print("in range",cloestHuman.id,dist)
+						#print("in range",cloestHuman.id,dist)
 						cloestHuman.isSuspect=True
 				else:
-					print("itemflag2",item,itemDataset[item].alarm_flag)
+					#print("itemflag2",item,itemDataset[item].alarm_flag)
 					
 					if itemDataset[item].alarm_flag == True:
 						#cloestHuman,dist=findCloestHuman(item,humanDataset) 
@@ -53,7 +53,7 @@ def Scan_for_item_existing(humanDataset, itemDataset):
 							#	cloestHuman.isSuspect=False 
 							#Track_and_display(humanDataset) will used in main function   
 						else:
-							if dist<oclussion_chek_dist:
+							if dist<oclussion_check_dist:
 								print("A",dist)
 								cloestHuman.isSuspect=True
 								#cloestHuman.stolenitemDict[item]=itemDataset[item]
@@ -63,6 +63,7 @@ def Scan_for_item_existing(humanDataset, itemDataset):
 					else:
 						print("pop item when no alarm ",item,"human pos",human.x,human.y)
 						pop_item_list.append(itemDataset[item])
+						human.itemList.pop(index)
 						#Pop_item_from_dataset(item,itemDataset)  #minor Case: disappear at same time
 			if human.itemList == []:
 				print("pop human",human.id,human.missing,human.x,human.y)
@@ -70,10 +71,11 @@ def Scan_for_item_existing(humanDataset, itemDataset):
 				#Pop_human_from_dataset(human,humanDataset)
 		else:
 			#print("human.item",human.id,human.itemList,human.x,human.y)
-			for item in human.itemList:
+			for index,item in enumerate(human.itemList):
 				print(item,human.id)
 				if itemDataset[item].missing ==True:
-					print("pop item when item missing")
+					print("pop item when item missing",index)
+					human.itemList.pop(index)
 					#Pop_item_from_dataset(item,itemDataset)
 					pop_item_list.append(itemDataset[item])
 				else:
@@ -87,7 +89,7 @@ def Scan_for_item_existing(humanDataset, itemDataset):
 def Track_and_Display(humanDataset,itemDataset):
 	human_disp_list=[]
 	for human in humanDataset.values():
-		#print(human.stolenitemDict)
+		print(human.id,human.isSuspect,human.stolenitemDict)
 		if human.isSuspect==True and len(human.stolenitemDict)!=0: 
 			#bounded with red color
 			human_disp_list.append([human.id,"red"])

@@ -32,7 +32,7 @@ countItem=0
 def humanMatching(image, detection, humanDataset, itemDataset, encoder, missingPeopleDataset):
 
 	global countHuman
-	distanceThres = 20
+	distanceThres = 70
 	
 	for h_n in detection:
 		find_pair = False
@@ -140,6 +140,7 @@ def findClosestHuman(item, humanDataset):
 
 def setAllItemAlarmOff(human, itemDataset):
 	for itemID in human.itemList:
+		print("human, item",human,itemID,itemDataset.keys())
 		if itemDataset[itemID].alarm_flag is True:
 			itemDataset[itemID].alarm_flag = False
 

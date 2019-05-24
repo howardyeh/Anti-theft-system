@@ -198,13 +198,14 @@ if __name__=="__main__":
 
 	classes = load_classes('../data/coco.names')
 	colors = pkl.load(open("../model/pallete", "rb"))
-	f=open('../dataset/bbox_data.txt','a+')
+	f=open('../dataset/bbox_data.txt','a')
 	args = arg_parse()
 	if not os.path.exists(args.det):
 		os.makedirs(args.det)
 	confidence = float(args.confidence)
 	nms_thesh = float(args.nms_thresh)
 	start = 0
+	#Where the image are saved
 	dir_name=args.dataset
 	num_classes = 80
 	CUDA = torch.cuda.is_available()  
@@ -257,10 +258,13 @@ if __name__=="__main__":
 		c2 = c1[0] + t_size[0] + 3, c1[1] + t_size[1] + 4
 		cv2.rectangle(img, c1, c2,color, -1)
 		cv2.putText(img, label, (c1[0], c1[1] + t_size[1] + 4), cv2.FONT_HERSHEY_PLAIN, 1, [225,255,255], 1);
+			
+		detection.append([c1[0].cpu().detach().numpy().tolist(),c1[1].cpu().detach().numpy().tolist(),
+				c2[0].cpu().detach().numpy().tolist(),c2[1].cpu().detach().numpy().tolist(),classes[cls]])
+
+		#Function that help created the list of detection postion and class
 		def write_in_file():
 			#print(str([c1[0].cpu().detach().numpy().tolist(),c1[1].cpu().detach().numpy().tolist(),c2[0].cpu().detach().numpy().tolist(),c2[1].cpu().detach().numpy().tolist(),classes[cls]]))
-			detection.append([c1[0].cpu().detach().numpy().tolist(),c1[1].cpu().detach().numpy().tolist(),
-				c2[0].cpu().detach().numpy().tolist(),c2[1].cpu().detach().numpy().tolist(),classes[cls]])
 			if im_id_list==[]:
 				#print(x[0].cpu().detach().numpy().tolist())
 				f.write("[")
@@ -277,7 +281,7 @@ if __name__=="__main__":
 				f.write(str([c1[0].cpu().detach().numpy().tolist(),c1[1].cpu().detach().numpy().tolist(),c2[0].cpu().detach().numpy().tolist(),c2[1].cpu().detach().numpy().tolist(),classes[cls]]))
 				im_id_list.append(x[0].cpu().detach().tolist())
 
-		write_in_file()
+		#write_in_file()
 		
 		return img
 
@@ -377,7 +381,7 @@ if __name__=="__main__":
 		#print("global11111",humanDataset)
 		#print("item22222",itemDataset)
 		Scan_for_item_existing(humanDataset,itemDataset)
-		#Track_and_Display(humanDataset, itemDataset)
+		Track_and_Display(humanDataset, itemDataset)
 		#count+=1
 
 	print(im_id_list)
