@@ -326,11 +326,13 @@ if __name__=="__main__":
 		
 		detection=[]
 		list(map(lambda x: write(x, orig_im,im_id_list,detection), output))
-		#print("detection",filename.split('.')[0])
-		#print(args.det+"/"+filename.split('.')[0])
+		
+
+	
+		#Use this line to save the file
 		#list(map(cv2.imwrite, args.det+"/"+filename, orig_im))
 		
-		#print("FPS of the video is {:5.2f}".format( frames / (time.time() - start)))
+		print("FPS of the video is {:5.2f}".format( frames / (time.time() - start)))
 		
 		detection_list=[]
 		human_list=[]
