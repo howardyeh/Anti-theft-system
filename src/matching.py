@@ -44,7 +44,7 @@ def humanMatching(image, detection, humanDataset, itemDataset, encoder, missingP
 		# print("detected human in ", hnx, hny)
 		for h_d in humanDataset.values():
 			# print("dataset human in ", h_d.x, h_d.y)
-			print("human distance",np.sqrt((hnx - h_d.x)**2 + (hny - h_d.y)**2),distanceThres)
+			#print("human distance",np.sqrt((hnx - h_d.x)**2 + (hny - h_d.y)**2),distanceThres)
 			if h_d.missing == False and np.sqrt((hnx - h_d.x)**2 + (hny - h_d.y)**2) < distanceThres:
 				h_d.update_position(hnx, hny)
 				h_d.updated = True
@@ -63,7 +63,7 @@ def humanMatching(image, detection, humanDataset, itemDataset, encoder, missingP
 				countHuman = countHuman + 1	
 				newHuman = humanData(hnx, hny, countHuman, feature)
 				humanDataset[countHuman] = newHuman
-				print("Build up new human data id =", countHuman)
+				#print("Build up new human data id =", countHuman)
 
 			else:
 				humanDataset[matchId].updated = True
@@ -76,7 +76,7 @@ def humanMatching(image, detection, humanDataset, itemDataset, encoder, missingP
 		if h_d.updated == False and h_d.missing == False:
 			h_d.missing = True
 			missingPeopleDataset.append(h_d)
-			print("Human missing! missingPeopleDataset become", missingPeopleDataset)
+			#print("Human missing! missingPeopleDataset become", missingPeopleDataset)
 
 		h_d.updated = False # reset the update flag for all human in dataset
 
@@ -86,7 +86,7 @@ def itemMatching(detection, humanDataset,itemDataset):
 	global countItem
 	distanceThres = 60
 		
-	for d_n in detection:
+	for d_n,d_name in zip(detection[0],detection[1]):
 		find_pair = False
 
 		dnx = (d_n[0] + d_n[2])/2.0
@@ -94,15 +94,19 @@ def itemMatching(detection, humanDataset,itemDataset):
 
 
 		for d_d in itemDataset.values():
-			print("item distance: ",((dnx - d_d.x)**2 + (dny - d_d.y)**2),distanceThres)
+			#print("item.id",d_d.id,d_n)
+			#print("item distance: ",((dnx - d_d.x)**2 + (dny - d_d.y)**2),distanceThres)
 			if np.sqrt((dnx - d_d.x)**2 + (dny - d_d.y)**2) < distanceThres:
 				if d_d.alarm_flag == False:
-					d_d.update_position(dnx, dny)
-					d_d.updated = True
-					d_d.missing = False
-					find_pair = True
-					break
+					if d_name==d_d.name:
+						#print("update",d_name)
+						d_d.update_position(dnx, dny)
+						d_d.updated = True
+						d_d.missing = False
+						find_pair = True
+						break
 				else: # if item is in alarm state, no update position
+					#print("do not update",d_name)	
 					d_d.updated = True
 					d_d.missing = False
 					find_pair = True
@@ -110,10 +114,12 @@ def itemMatching(detection, humanDataset,itemDataset):
 
 		if not find_pair:
 			countItem = countItem + 1
-			newItem = itemData(dnx, dny, countItem)
+			newItem = itemData(dnx, dny, countItem,d_name)
 			itemDataset[countItem] = newItem
 			findClosestHuman(itemDataset[countItem], humanDataset) # link the item to human
-
+		else:
+			pass
+			#print("find pair")
 	for d_d in itemDataset.values():
 		# what if item get occluded for a frame?
 				
@@ -128,12 +134,14 @@ def findClosestHuman(item, humanDataset):
 	closestHuman = None
 	for human in humanDataset.values():
 		dist = np.sqrt((item.x - human.x)**2 + (item.y - human.y)**2)
-		print("distance between human",human.id, "and item", item.id, "is", dist)
+		#print("distance between human",human.id, "and item", item.id, "is", dist)
 		if dist < min_dist:
 			min_dist = dist
 			closestHuman = human
 	if closestHuman!=None:
 		closestHuman.itemList.append(item.id)
+		item.owner=closestHuman.id
+		print("owner",item.owner)
 	#can i add a return closeHuman (do you need a range around the item?) 
 	
 
@@ -149,8 +157,8 @@ def matchMissingPeople(feature, missingPeopleDataset):
 	closestMatchDist = 10000
 	closestMatch = None
 	thresDist = 0.05
-	print("start to match missing people...")
-	print("missingPeopleDataset = ", missingPeopleDataset)
+	#print("start to match missing people...")
+	#print("missingPeopleDataset = ", missingPeopleDataset)
 	for h_d in missingPeopleDataset:
 		dist = calculateDist(feature, h_d.feature)
 		if dist < thresDist:
@@ -158,12 +166,12 @@ def matchMissingPeople(feature, missingPeopleDataset):
 				closestMatchDist = dist
 				closestMatch = h_d
 	if closestMatch is not None:
-		print("find closest match", closestMatch)
+		#print("find closest match", closestMatch)
 		missingPeopleDataset.remove(closestMatch)
-		print("missingPeopleDataset now contain", missingPeopleDataset)
+		#print("missingPeopleDataset now contain", missingPeopleDataset)
 		return closestMatch.id
 	else:
-		print("no matching in missingPeopleDataset")
+		#print("no matching in missingPeopleDataset")
 		return None
 
 

@@ -15,14 +15,15 @@ class humanData:
 
 
 class itemData:
-	def __init__(self, x, y, idx):
+	def __init__(self, x, y, idx,name):
 		self.x = x
 		self.y = y
 		self.id = idx
 		self.updated = True
 		self.missing = False
 		self.alarm_flag = False
-		
+		self.name=name
+		self.owner=0
 	def update_position(self, nx, ny):
 		self.x = nx
 		self.y = ny

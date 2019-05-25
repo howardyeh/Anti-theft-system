@@ -19,13 +19,14 @@ import numpy as np
 import random
 import cv2
 def Scan_for_item_existing(humanDataset, itemDataset):
-	oclussion_check_dist=280  #not sure about this distance
+	oclussion_check_dist=200  #not sure about this distance
+	stolen_check_dist=300     #Leave larger distance 
 	pop_item_list=[]
 	pop_human_list=[]
 	for human in humanDataset.values():
-
+		print("human info==",human.id,human.missing,human.itemList)
 		if human.missing == True:  #True or falsue
-			#print("humanmissing",human.x,human.y)
+			
 			for index,item in enumerate(human.itemList):
 
 				cloestHuman,dist=findClosestHuman(itemDataset[item],humanDataset)
@@ -43,41 +44,43 @@ def Scan_for_item_existing(humanDataset, itemDataset):
 						cloestHuman.isSuspect=True
 				else:
 					#print("itemflag2",item,itemDataset[item].alarm_flag)
-					
+					#print("what are you doing ",itemDataset[item].alarm_flag)
 					if itemDataset[item].alarm_flag == True:
 						#cloestHuman,dist=findCloestHuman(item,humanDataset) 
-						print("=======alarm item: ",itemDataset[item].id)
+						#print("=======alarm item: ",itemDataset[item].id)
 						if cloestHuman.isSuspect==True:
-							if dist>oclussion_check_dist:
+							if dist>stolen_check_dist:
 								cloestHuman.stolenitemDict[item]=itemDataset[item]
-								print("add to dict")
+								#print("add to dict")
 							#else:
 							#	cloestHuman.isSuspect=False 
 							#Track_and_display(humanDataset) will used in main function   
 						else:
 							if dist<oclussion_check_dist:
-								print("less than oclussion",dist,oclussion_check_dist)
+								#print("less than oclussion",dist,oclussion_check_dist)
 								cloestHuman.isSuspect=True
 								#cloestHuman.stolenitemDict[item]=itemDataset[item]
 							else:
-								print("greter than oclussion",dist,oclussion_check_dist)
+								#print("greter than oclussion",dist,oclussion_check_dist)
 								cloestHuman.isSuspect=False    
 								#Oclussion case
 					else:
-						print("pop item when no alarm ",item,"human pos",human.x,human.y)
+						#print("pop item when no alarm ",item,"human pos",human.x,human.y)
 						pop_item_list.append(itemDataset[item])
 						human.itemList.pop(index)
+
+					#print("what is left in human item list",human.id,human.itemList)
 						#Pop_item_from_dataset(item,itemDataset)  #minor Case: disappear at same time
 			if human.itemList == []:
-				print("pop human",human.id,human.missing,human.x,human.y)
+				#print("pop human",human.id,human.missing,human.itemList)
 				pop_human_list.append(human)
 				#Pop_human_from_dataset(human,humanDataset)
 		else:
 			#print("human.item",human.id,human.itemList,human.x,human.y)
 			for index,item in enumerate(human.itemList):
-				print(item,human.id)
+				#print(item,human.id)
 				if itemDataset[item].missing ==True:
-					print("pop item when item missing",index)
+					#print("pop item when item missing")
 					human.itemList.pop(index)
 					#Pop_item_from_dataset(item,itemDataset)
 					pop_item_list.append(itemDataset[item])
@@ -89,34 +92,62 @@ def Scan_for_item_existing(humanDataset, itemDataset):
 		Pop_human_from_dataset(human,humanDataset)
 
 
-def Track_and_Display(humanDataset,itemDataset,orig_im,output,classes,colors):
-	def drawing(x, img):
-		c1 = tuple(x[1:3].int())
-		c2 = tuple(x[3:5].int())
-		cls = int(x[-1])
-
-		#only draw item bounding box 
-		label = "{0}".format(classes[cls])
-		color = random.choice(colors)
-		cv2.rectangle(img, c1, c2,color, 1)		
-		t_size = cv2.getTextSize(label, cv2.FONT_HERSHEY_PLAIN, 1 , 1)[0]
-		c2 = c1[0] + t_size[0] + 3, c1[1] + t_size[1] + 4
-		cv2.rectangle(img, c1, c2,color, -1)
-		cv2.putText(img, label, (c1[0], c1[1] + t_size[1] + 4), cv2.FONT_HERSHEY_PLAIN, 1, [225,255,255], 1);
-			
-		
-	human_disp_list=[]
+def Track_and_Display(humanDataset,itemDataset,orig_im,human_detect,item_detect,classes,colors):
+	
+	img=orig_im	
+	human_disp_list={}
+	item_disp_list={}
 	for human in humanDataset.values():
-		print(human.id,human.isSuspect,human.stolenitemDict)
+		print("Suspect",human.id,human.isSuspect,human.stolenitemDict)
 		if human.isSuspect==True and len(human.stolenitemDict)!=0: 
 			#bounded with red color
-			human_disp_list.append([human.id,"red"])
+			human_disp_list[(human.x,human.y)]=((51,51,251),human.id)#"red"
 		else: 
 			#bounded with black color
 			if human.missing ==False:
-				human_disp_list.append([human.id,"black"])
-	print(human_disp_list)
-	list(map(lambda x: drawing(x, orig_im), output))
+				human_disp_list[(human.x,human.y)]=((0,0,0),human.id)#"black"
+	
+
+	for item in itemDataset.values():
+		
+		item_disp_list[(item.x,item.y)]=item.owner#"red"
+		
+	
+	for item,_item_class in zip(item_detect[0],item_detect[1]):
+
+		c1=tuple(item[0:2])
+		c2=tuple(item[2:4])
+		cls=_item_class
+		#inx = (item[0] + item[2])/2.0
+		#iny = (item[1] + item[3])/2.0
+		#owner=item_disp_list[(inx,iny)]
+		color = random.choice(colors)
+		cv2.rectangle(img, c1, c2,color, 1)		
+		#t_size = cv2.getTextSize(cls+" owned by " +str(owner), cv2.FONT_HERSHEY_PLAIN, 1 , 1)[0]
+		t_size = cv2.getTextSize(cls, cv2.FONT_HERSHEY_PLAIN, 1 , 1)[0]
+		c2 = c1[0] + t_size[0] + 3, c1[1] + t_size[1] + 4
+		cv2.rectangle(img, c1, c2,color, -1)
+		cv2.putText(img, cls, (c1[0], c1[1] + t_size[1] + 4), cv2.FONT_HERSHEY_PLAIN, 1, [225,255,255], 1);
+			
+			
+	for human,_human_class in zip(human_detect[0],human_detect[1]):
+		c1=tuple(human[0:2])
+		c2=tuple(human[2:4])
+		cls=_human_class
+		hnx = (human[0] + human[2])/2.0
+		hny = (human[1] + human[3])/2.0
+		color,hid=human_disp_list[(hnx,hny)]
+		#print("====color",color)
+		cv2.rectangle(img, c1, c2,color, 1)		
+		t_size = cv2.getTextSize(cls, cv2.FONT_HERSHEY_PLAIN, 1 , 1)[0]
+		c2 = c1[0] + t_size[0] + 3, c1[1] + t_size[1] + 4
+		cv2.rectangle(img, c1, c2,color, -1)
+		if color!=(0,0,0):#BLACK
+			cv2.putText(img, "Suspect"+str(hid), (c1[0], c1[1] + t_size[1] + 4), cv2.FONT_HERSHEY_PLAIN, 1, [225,255,255], 1);
+		else:
+			cv2.putText(img, cls+str(hid), (c1[0], c1[1] + t_size[1] + 4), cv2.FONT_HERSHEY_PLAIN, 1, [225,255,255], 1);
+
+		#print("human",human,_human_class)
 
 
 

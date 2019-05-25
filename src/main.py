@@ -252,18 +252,9 @@ if __name__=="__main__":
 		c2 = tuple(x[3:5].int())
 		cls = int(x[-1])
 
-		#only draw item bounding box 
-		label = "{0}".format(classes[cls])
-		color = random.choice(colors)
-		cv2.rectangle(img, c1, c2,color, 1)		
-		t_size = cv2.getTextSize(label, cv2.FONT_HERSHEY_PLAIN, 1 , 1)[0]
-		c2 = c1[0] + t_size[0] + 3, c1[1] + t_size[1] + 4
-		cv2.rectangle(img, c1, c2,color, -1)
-		cv2.putText(img, label, (c1[0], c1[1] + t_size[1] + 4), cv2.FONT_HERSHEY_PLAIN, 1, [225,255,255], 1);
-			
 		detection.append([c1[0].cpu().detach().numpy().tolist(),c1[1].cpu().detach().numpy().tolist(),
 				c2[0].cpu().detach().numpy().tolist(),c2[1].cpu().detach().numpy().tolist(),classes[cls]])
-
+		
 		#Function that help created the list of detection postion and class
 		def write_in_file():
 			#print(str([c1[0].cpu().detach().numpy().tolist(),c1[1].cpu().detach().numpy().tolist(),c2[0].cpu().detach().numpy().tolist(),c2[1].cpu().detach().numpy().tolist(),classes[cls]]))
@@ -295,7 +286,7 @@ if __name__=="__main__":
 		print("=================")
 		#print("time stamp:",count)
 		frame=os.path.join(dir_name,filename)
-		print(frame)
+		#print(frame)
 		
 		
 		
@@ -311,7 +302,7 @@ if __name__=="__main__":
 
 		if type(output) == int:
 			frames += 1
-			print("FPS of the video is {:5.2f}".format( frames / (time.time() - start)))
+			#print("FPS of the video is {:5.2f}".format( frames / (time.time() - start)))
 			cv2.imshow("frame", orig_im)
 			key = cv2.waitKey(1)
 			if key & 0xFF == ord('q'):
@@ -344,21 +335,23 @@ if __name__=="__main__":
 		human_list=[]
 		item_list=[]
 		item_class=[]
+		human_class=[]
 		for dect in detection:
 			#print(dect)
 			
 			if dect[-1]=='person':
 				human_list.append(dect[0:-1])
+				human_class.append(dect[-1])
 			else:
 				item_list.append(dect[0:-1])
 				item_class.append(dect[-1])
 				
 		if human_list!=[]:
 			humanMatching(image, human_list, humanDataset, itemDataset, encoder, missingPeopleDataset)
-		print("human",humanDataset.keys())
+		#print("human",humanDataset.keys())
 		if item_list!=[]:
-			itemMatching(item_list, humanDataset,itemDataset)
-		print("item",itemDataset.keys())
+			itemMatching((item_list,item_class), humanDataset,itemDataset)
+		#print("item",itemDataset.keys())
 		count+=1
 		font = cv2.FONT_HERSHEY_SIMPLEX
 		cv2.putText(orig_im,filename,(30,40),font,1,(0,0,0),2)
@@ -371,7 +364,7 @@ if __name__=="__main__":
 		#if (i!=0):
 			#cv2.putText(orig_im,str(list(itemDataset.keys())[(i+1)*10:]),(30,90+(i+1)*40),font,1,(0,0,0),2)
 
-
+		
 
 
 		
@@ -379,7 +372,8 @@ if __name__=="__main__":
 		#print("global11111",humanDataset)
 		#print("item22222",itemDataset)
 		Scan_for_item_existing(humanDataset,itemDataset)
-		Track_and_Display(humanDataset, itemDataset,orig_im,output,classes,colors)
+		Track_and_Display(humanDataset, itemDataset,orig_im,
+			(human_list,human_class),(item_list,item_class),classes,colors)
 		#count+=1
 
 
@@ -388,10 +382,6 @@ if __name__=="__main__":
 		if key & 0xFF == ord('q'):
 			break
 		frames += 1
-
-	print(im_id_list)
-	
-
 
 
 
