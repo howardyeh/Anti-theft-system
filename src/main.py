@@ -41,8 +41,6 @@ class Simulation:
 		self.people0_pos=(105,105)
 		self.people1_pos=(30,30)
 		#Generate some data (Not complete,increment 0-10 each time step)
-		self.item={0:["Lattop",self.item0_pos[0],self.item0_pos[1]],1:["Cell Phone",self.item1_pos[0],self.item1_pos[1]]}
-		
 		self.human={0:["Human A",self.people0_pos[0],self.people0_pos[1]],1:["Human B",self.people1_pos[0],self.people1_pos[1]]}
 		
 	def yolo(self):
@@ -119,7 +117,7 @@ def arg_parse():
 	parser = argparse.ArgumentParser(description='Anti-theft system')
 	parser.add_argument("--video", dest = 'video', help = 
 						"Video to run detection upon",
-						default = "video.avi", type = str)
+						default = "../dataset/dataset2.mp4", type = str)
 	parser.add_argument("--det", dest = 'det', help ="Image / Directory to store detections to",
 						default = "../dataset/det", type = str)
 	#parser.add_argument("--dataset", dest = "dataset", help = "Dataset on which the network has been trained", default = "pascal")
@@ -132,7 +130,7 @@ def arg_parse():
 	parser.add_argument("--reso", dest = 'reso', help = "Input resolution of the network. Increase to increase accuracy. Decrease to increase speed",
 						default = "416", type = str)
 	parser.add_argument("--dataset",dest="dataset",help="original image",
-		default="../dataset/imgs")
+		default="../dataset/img")
 	return parser.parse_args()
 
 
@@ -241,9 +239,9 @@ if __name__=="__main__":
 	
 	#while count<40:
 	count=0
-	file=os.listdir(dir_name)
+	#file=os.listdir(dir_name)
 	
-	file.sort(key=lambda f: int(''.join(filter(str.isdigit, f))))
+	#file.sort(key=lambda f: int(''.join(filter(str.isdigit, f))))
 	im_id_list=[]
 
 
@@ -279,109 +277,115 @@ if __name__=="__main__":
 		return img
 
 
-
-
-
-	for filename in file:
-		print("=================")
-		#print("time stamp:",count)
-		frame=os.path.join(dir_name,filename)
-		#print(frame)
+	videofile = args.video  
+	cap = cv2.VideoCapture(videofile)  
+	assert cap.isOpened(), 'Cannot capture source'
+	start = time.time()    
+	while cap.isOpened():
 		
-		
-		
-		img, orig_im, dim = prep_image(frame, inp_dim)
-		im_dim = torch.FloatTensor(dim).repeat(1,2)
-		if CUDA:
-			im_dim = im_dim.cuda()
-			img = img.cuda()
-		
-		with torch.no_grad():   
-			output = model(Variable(img), CUDA)
-		output = write_results(output, confidence, num_classes, nms = True, nms_conf = nms_thesh)
+		ret, frame = cap.read()
+		if ret:
 
-		if type(output) == int:
-			frames += 1
+		#for filename in file:
+			print("=================")
+			#print(frame)
+			#print("time stamp:",count)
+			#frame=os.path.join(dir_name,filename)
+			#print(frame)
+			
+			
+			
+			img, orig_im, dim = prep_image(frame, inp_dim)
+			
+			im_dim = torch.FloatTensor(dim).repeat(1,2)
+			if CUDA:
+				im_dim = im_dim.cuda()
+				img = img.cuda()
+			
+			with torch.no_grad():   
+				output = model(Variable(img), CUDA)
+			output = write_results(output, confidence, num_classes, nms = True, nms_conf = nms_thesh)
+
+			if type(output) == int:
+				frames += 1
+				#print("FPS of the video is {:5.2f}".format( frames / (time.time() - start)))
+				cv2.imshow("frame", orig_im)
+				key = cv2.waitKey(1)
+				if key & 0xFF == ord('q'):
+					break
+				continue
+
+			im_dim = im_dim.repeat(output.size(0), 1)
+			scaling_factor = torch.min(inp_dim/im_dim,1)[0].view(-1,1)
+			
+			output[:,[1,3]] -= (inp_dim - scaling_factor*im_dim[:,0].view(-1,1))/2
+			output[:,[2,4]] -= (inp_dim - scaling_factor*im_dim[:,1].view(-1,1))/2
+			
+			output[:,1:5] /= scaling_factor
+
+			for i in range(output.shape[0]):
+				output[i, [1,3]] = torch.clamp(output[i, [1,3]], 0.0, im_dim[i,0])
+				output[i, [2,4]] = torch.clamp(output[i, [2,4]], 0.0, im_dim[i,1])
+			
+			detection=[]
+			list(map(lambda x: detecting_function(x, orig_im,detection), output))
+			print("det",detection)
+
+		
+			#Use this line to save the file
+			#list(map(cv2.imwrite, args.det+"/"+filename, orig_im))
+			
 			#print("FPS of the video is {:5.2f}".format( frames / (time.time() - start)))
+			
+			detection_list=[]
+			human_list=[]
+			item_list=[]
+			item_class=[]
+			human_class=[]
+			for dect in detection:
+				#print(dect)
+				
+				if dect[-1]=='person':
+					human_list.append(dect[0:-1])
+					human_class.append(dect[-1])
+				else:
+					item_list.append(dect[0:-1])
+					item_class.append(dect[-1])
+					
+			if human_list!=[]:
+				humanMatching(image, human_list, humanDataset, itemDataset, encoder, missingPeopleDataset)
+			print("human",humanDataset.keys())
+			if item_list!=[]:
+				itemMatching((item_list,item_class), humanDataset,itemDataset)
+			print("item",itemDataset.keys())
+			count+=1
+			font = cv2.FONT_HERSHEY_SIMPLEX
+			#cv2.putText(orig_im,filename,(30,40),font,1,(0,0,0),2)
+			cv2.putText(orig_im,"human"+str(list(humanDataset.keys())),(30,80),font,1,(0,0,0),2)
+			for i in range(0,math.floor(len(itemDataset.keys())/10)+1,1):
+				if i==0:
+					cv2.putText(orig_im,"item:"+str(list(itemDataset.keys())[(i)*10:(i+1)*10]),(30,120+i*40),font,1,(0,0,0),2)
+				else:
+					cv2.putText(orig_im,str(list(itemDataset.keys())[(i)*10:(i+1)*10]),(30,120+i*40),font,1,(0,0,0),2)
+			#if (i!=0):
+				#cv2.putText(orig_im,str(list(itemDataset.keys())[(i+1)*10:]),(30,90+(i+1)*40),font,1,(0,0,0),2)
+			Scan_for_item_existing(humanDataset,itemDataset)
+			Track_and_Display(humanDataset, itemDataset,orig_im,
+				(human_list,human_class),(item_list,item_class),classes,colors)
+			
+
+			count+=1
+			cv2.imwrite(args.det+"/"+"frame%d.jpg" % count, image)
+
+
 			cv2.imshow("frame", orig_im)
-			key = cv2.waitKey(1)
+			key = cv2.waitKey(2)
 			if key & 0xFF == ord('q'):
 				break
-			continue
+			frames += 1
 
-		im_dim = im_dim.repeat(output.size(0), 1)
-		scaling_factor = torch.min(inp_dim/im_dim,1)[0].view(-1,1)
-		
-		output[:,[1,3]] -= (inp_dim - scaling_factor*im_dim[:,0].view(-1,1))/2
-		output[:,[2,4]] -= (inp_dim - scaling_factor*im_dim[:,1].view(-1,1))/2
-		
-		output[:,1:5] /= scaling_factor
-
-		for i in range(output.shape[0]):
-			output[i, [1,3]] = torch.clamp(output[i, [1,3]], 0.0, im_dim[i,0])
-			output[i, [2,4]] = torch.clamp(output[i, [2,4]], 0.0, im_dim[i,1])
-		
-		detection=[]
-		list(map(lambda x: detecting_function(x, orig_im,detection), output))
-		print("det",detection)
-
-	
-		#Use this line to save the file
-		#list(map(cv2.imwrite, args.det+"/"+filename, orig_im))
-		
-		#print("FPS of the video is {:5.2f}".format( frames / (time.time() - start)))
-		
-		detection_list=[]
-		human_list=[]
-		item_list=[]
-		item_class=[]
-		human_class=[]
-		for dect in detection:
-			#print(dect)
-			
-			if dect[-1]=='person':
-				human_list.append(dect[0:-1])
-				human_class.append(dect[-1])
-			else:
-				item_list.append(dect[0:-1])
-				item_class.append(dect[-1])
-				
-		if human_list!=[]:
-			humanMatching(image, human_list, humanDataset, itemDataset, encoder, missingPeopleDataset)
-		#print("human",humanDataset.keys())
-		if item_list!=[]:
-			itemMatching((item_list,item_class), humanDataset,itemDataset)
-		#print("item",itemDataset.keys())
-		count+=1
-		font = cv2.FONT_HERSHEY_SIMPLEX
-		cv2.putText(orig_im,filename,(30,40),font,1,(0,0,0),2)
-		cv2.putText(orig_im,"human"+str(list(humanDataset.keys())),(30,80),font,1,(0,0,0),2)
-		for i in range(0,math.floor(len(itemDataset.keys())/10)+1,1):
-			if i==0:
-				cv2.putText(orig_im,"item:"+str(list(itemDataset.keys())[(i)*10:(i+1)*10]),(30,120+i*40),font,1,(0,0,0),2)
-			else:
-				cv2.putText(orig_im,str(list(itemDataset.keys())[(i)*10:(i+1)*10]),(30,120+i*40),font,1,(0,0,0),2)
-		#if (i!=0):
-			#cv2.putText(orig_im,str(list(itemDataset.keys())[(i+1)*10:]),(30,90+(i+1)*40),font,1,(0,0,0),2)
-
-		
-
-
-		
-			
-		#print("global11111",humanDataset)
-		#print("item22222",itemDataset)
-		Scan_for_item_existing(humanDataset,itemDataset)
-		Track_and_Display(humanDataset, itemDataset,orig_im,
-			(human_list,human_class),(item_list,item_class),classes,colors)
-		#count+=1
-
-
-		cv2.imshow("frame", orig_im)
-		key = cv2.waitKey(2)
-		if key & 0xFF == ord('q'):
+		else:
 			break
-		frames += 1
 
 
 

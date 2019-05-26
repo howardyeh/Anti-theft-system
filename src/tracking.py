@@ -98,7 +98,7 @@ def Track_and_Display(humanDataset,itemDataset,orig_im,human_detect,item_detect,
 	human_disp_list={}
 	item_disp_list={}
 	for human in humanDataset.values():
-		print("Suspect",human.id,human.isSuspect,human.stolenitemDict)
+		print("Suspect",human.id,human.isSuspect,human.stolenitemDict.keys())
 		if human.isSuspect==True and len(human.stolenitemDict)!=0: 
 			#bounded with red color
 			human_disp_list[(human.x,human.y)]=((51,51,251),human.id)#"red"
@@ -139,13 +139,13 @@ def Track_and_Display(humanDataset,itemDataset,orig_im,human_detect,item_detect,
 		color,hid=human_disp_list[(hnx,hny)]
 		#print("====color",color)
 		cv2.rectangle(img, c1, c2,color, 1)		
-		t_size = cv2.getTextSize(cls, cv2.FONT_HERSHEY_PLAIN, 1 , 1)[0]
+		t_size = cv2.getTextSize(cls+"  ", cv2.FONT_HERSHEY_PLAIN, 2 , 1)[0]
 		c2 = c1[0] + t_size[0] + 3, c1[1] + t_size[1] + 4
 		cv2.rectangle(img, c1, c2,color, -1)
 		if color!=(0,0,0):#BLACK
-			cv2.putText(img, "Suspect"+str(hid), (c1[0], c1[1] + t_size[1] + 4), cv2.FONT_HERSHEY_PLAIN, 1, [225,255,255], 1);
+			cv2.putText(img, "Suspect"+str(hid), (c1[0], c1[1] + t_size[1] + 4), cv2.FONT_HERSHEY_PLAIN, 2, [225,255,255], 1);
 		else:
-			cv2.putText(img, cls+str(hid), (c1[0], c1[1] + t_size[1] + 4), cv2.FONT_HERSHEY_PLAIN, 1, [225,255,255], 1);
+			cv2.putText(img, cls+str(hid), (c1[0], c1[1] + t_size[1] + 4), cv2.FONT_HERSHEY_PLAIN, 2, [225,255,255], 1);
 
 		#print("human",human,_human_class)
 
