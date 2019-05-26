@@ -375,7 +375,7 @@ if __name__=="__main__":
 			
 
 			count+=1
-			cv2.imwrite(args.det+"/"+"frame%d.jpg" % count, image)
+			cv2.imwrite(args.det+"/"+"frame%d.jpg" % count, orig_im)
 
 
 			cv2.imshow("frame", orig_im)
