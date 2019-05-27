@@ -66,6 +66,7 @@ def humanMatching(image, detection, humanDataset, itemDataset, encoder, missingP
 				#print("Build up new human data id =", countHuman)
 
 			else:
+				print("human match",matchId)
 				humanDataset[matchId].updated = True
 				humanDataset[matchId].missing = False
 				humanDataset[matchId].update_position(hnx, hny)
@@ -141,14 +142,14 @@ def findClosestHuman(item, humanDataset):
 	if closestHuman!=None:
 		closestHuman.itemList.append(item.id)
 		item.owner=closestHuman.id
-		print("owner",item.owner)
+		#print("owner",item.owner)
 	#can i add a return closeHuman (do you need a range around the item?) 
 	
 
 
 def setAllItemAlarmOff(human, itemDataset):
 	for itemID in human.itemList:
-		print("human, item",human,itemID,itemDataset.keys())
+		#print("human, item",human,itemID,itemDataset.keys())
 		if itemDataset[itemID].alarm_flag is True:
 			itemDataset[itemID].alarm_flag = False
 

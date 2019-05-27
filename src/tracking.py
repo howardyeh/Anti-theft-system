@@ -72,7 +72,7 @@ def Scan_for_item_existing(humanDataset, itemDataset):
 					#print("what is left in human item list",human.id,human.itemList)
 						#Pop_item_from_dataset(item,itemDataset)  #minor Case: disappear at same time
 			if human.itemList == []:
-				#print("pop human",human.id,human.missing,human.itemList)
+				print("pop human",human.id,human.missing,human.itemList)
 				pop_human_list.append(human)
 				#Pop_human_from_dataset(human,humanDataset)
 		else:
@@ -154,8 +154,7 @@ def Track_and_Display(humanDataset,itemDataset,orig_im,human_detect,item_detect,
 
 
 def Pop_item_from_dataset(item,itemDataset):
-	#print("itemDataset",itemDataset)
-	#print("item",item.id)
+	
 	itemDataset.pop(item.id) # typo: pop() need to use key not value
 def Pop_human_from_dataset(human,humanDataset):
 	humanDataset.pop(human.id) # typo: pop() need to use key not value

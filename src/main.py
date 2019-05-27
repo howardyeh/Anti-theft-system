@@ -192,6 +192,40 @@ def mainFunc_for_bbox_txt():
 		#Track_and_Display(humanDataset, itemDataset)
 		#count+=1
 
+def detecting_function(x, img,detection):
+	c1 = tuple(x[1:3].int())
+	c2 = tuple(x[3:5].int())
+	cls = int(x[-1])
+
+	detection.append([c1[0].cpu().detach().numpy().tolist(),c1[1].cpu().detach().numpy().tolist(),
+			c2[0].cpu().detach().numpy().tolist(),c2[1].cpu().detach().numpy().tolist(),classes[cls]])
+	
+	#Function that help created the list of detection postion and class
+	def write_in_file():
+		#print(str([c1[0].cpu().detach().numpy().tolist(),c1[1].cpu().detach().numpy().tolist(),c2[0].cpu().detach().numpy().tolist(),c2[1].cpu().detach().numpy().tolist(),classes[cls]]))
+		if im_id_list==[]:
+			#print(x[0].cpu().detach().numpy().tolist())
+			f.write("[")
+			f.write(str([c1[0].cpu().detach().numpy().tolist(),c1[1].cpu().detach().numpy().tolist(),c2[0].cpu().detach().numpy().tolist()\
+				,c2[1].cpu().detach().numpy().tolist(),classes[cls]]))
+
+			im_id_list.append(x[0].cpu().detach().tolist())
+			
+		elif x[0]==im_id_list[-1]:
+			f.write(",")
+			f.write(str([c1[0].cpu().detach().numpy().tolist(),c1[1].cpu().detach().numpy().tolist(),c2[0].cpu().detach().numpy().tolist(),c2[1].cpu().detach().numpy().tolist(),classes[cls]]))
+		else:
+			f.write("]\n[")		
+			f.write(str([c1[0].cpu().detach().numpy().tolist(),c1[1].cpu().detach().numpy().tolist(),c2[0].cpu().detach().numpy().tolist(),c2[1].cpu().detach().numpy().tolist(),classes[cls]]))
+			im_id_list.append(x[0].cpu().detach().tolist())
+
+	#write_in_file()
+	
+	return img
+
+
+
+
 if __name__=="__main__":
 
 	classes = load_classes('../data/coco.names')
@@ -245,40 +279,10 @@ if __name__=="__main__":
 	im_id_list=[]
 
 
-	def detecting_function(x, img,detection):
-		c1 = tuple(x[1:3].int())
-		c2 = tuple(x[3:5].int())
-		cls = int(x[-1])
-
-		detection.append([c1[0].cpu().detach().numpy().tolist(),c1[1].cpu().detach().numpy().tolist(),
-				c2[0].cpu().detach().numpy().tolist(),c2[1].cpu().detach().numpy().tolist(),classes[cls]])
-		
-		#Function that help created the list of detection postion and class
-		def write_in_file():
-			#print(str([c1[0].cpu().detach().numpy().tolist(),c1[1].cpu().detach().numpy().tolist(),c2[0].cpu().detach().numpy().tolist(),c2[1].cpu().detach().numpy().tolist(),classes[cls]]))
-			if im_id_list==[]:
-				#print(x[0].cpu().detach().numpy().tolist())
-				f.write("[")
-				f.write(str([c1[0].cpu().detach().numpy().tolist(),c1[1].cpu().detach().numpy().tolist(),c2[0].cpu().detach().numpy().tolist()\
-					,c2[1].cpu().detach().numpy().tolist(),classes[cls]]))
-
-				im_id_list.append(x[0].cpu().detach().tolist())
-				
-			elif x[0]==im_id_list[-1]:
-				f.write(",")
-				f.write(str([c1[0].cpu().detach().numpy().tolist(),c1[1].cpu().detach().numpy().tolist(),c2[0].cpu().detach().numpy().tolist(),c2[1].cpu().detach().numpy().tolist(),classes[cls]]))
-			else:
-				f.write("]\n[")		
-				f.write(str([c1[0].cpu().detach().numpy().tolist(),c1[1].cpu().detach().numpy().tolist(),c2[0].cpu().detach().numpy().tolist(),c2[1].cpu().detach().numpy().tolist(),classes[cls]]))
-				im_id_list.append(x[0].cpu().detach().tolist())
-
-		#write_in_file()
-		
-		return img
-
+	
 
 	videofile = args.video  
-	cap = cv2.VideoCapture(videofile)  
+	cap = cv2.VideoCapture(0)  
 	assert cap.isOpened(), 'Cannot capture source'
 	start = time.time()    
 	while cap.isOpened():
@@ -375,7 +379,7 @@ if __name__=="__main__":
 			
 
 			count+=1
-			cv2.imwrite(args.det+"/"+"frame%d.jpg" % count, orig_im)
+			#cv2.imwrite(args.det+"/"+"frame%d.jpg" % count, orig_im)
 
 
 			cv2.imshow("frame", orig_im)
@@ -383,7 +387,7 @@ if __name__=="__main__":
 			if key & 0xFF == ord('q'):
 				break
 			frames += 1
-
+			print("FPS of the video is {:5.2f}".format( frames / (time.time() - start)))
 		else:
 			break
 
