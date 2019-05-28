@@ -2,14 +2,14 @@ import random
 import math
 import numpy as np
 import time
-import torch 
-import torch.nn as nn
+# import torch 
+# import torch.nn as nn
 import cv2 
-from torch.autograd import Variable
+# from torch.autograd import Variable
 from dataType import humanData, itemData
 from autoencoder import Autoencoder
 from matching import humanMatching, itemMatching
-from tracking import Scan_for_item_existing,Track_and_Display
+from tracking2 import Scan_for_item_existing,Track_and_Display
 import pandas as pd
 import random 
 import pickle as pkl
@@ -111,7 +111,6 @@ TODO
 '''
 
 
-
 def arg_parse():
 
 	parser = argparse.ArgumentParser(description='Anti-theft system')
@@ -134,63 +133,63 @@ def arg_parse():
 	return parser.parse_args()
 
 
+# def mainFunc_for_bbox_txt():
+# 	args = arg_parse()
+# 	dir_name=args.dataset
+# 	f= open(dir_name,'r')
+# 	line =f.readlines()
 
-def mainFunc_for_bbox_txt():
-	args = arg_parse()
-	dir_name=args.dataset
-	f= open(dir_name,'r')
-	line =f.readlines()
 
-
-	humanDataset = {}
-	image=np.zeros((2000,2000,3))
-	itemDataset = {}
-	missingPeopleDataset = []
-	#test=Simulation()
-	#count=0
+# 	humanDataset = {}
+# 	image=np.zeros((2000,2000,3))
+# 	itemDataset = {}
+# 	missingPeopleDataset = []
+# 	#test=Simulation()
+# 	#count=0
 	
-	encoder = Autoencoder()
+# 	encoder = Autoencoder()
 
-	#while count<40:
-	count=0
+# 	#while count<40:
+# 	count=0
 
-	for detection in line:
-		print("=================")
-		print("time stamp:",count)
-		print(detection)
-		detection = detection[2:-3]
-		detection=detection.split('],[')
-		detection_list=[]
-		human_list=[]
-		item_list=[]
-		item_class=[]
-		for detect in detection:
-			detect=detect.split(', ')
-			det_pos=[int(i) for i in detect[0:-1]]
-			det_class=detect[-1].strip("''")		
-			detection_list.append([det_pos,det_class])
+# 	for detection in line:
+# 		print("=================")
+# 		print("time stamp:",count)
+# 		print(detection)
+# 		detection = detection[2:-3]
+# 		detection=detection.split('],[')
+# 		detection_list=[]
+# 		human_list=[]
+# 		item_list=[]
+# 		item_class=[]
+# 		for detect in detection:
+# 			detect=detect.split(', ')
+# 			det_pos=[int(i) for i in detect[0:-1]]
+# 			det_class=detect[-1].strip("''")		
+# 			detection_list.append([det_pos,det_class])
 
-		for dect in detection_list:
+# 		for dect in detection_list:
 			
-			if dect[-1]=='person':
-				human_list.append(dect[0:-1])
-			else:
-				item_list.append(dect[0:-1])
-				item_class.append(dect[-1])
+# 			if dect[-1]=='person':
+# 				human_list.append(dect[0:-1])
+# 			else:
+# 				item_list.append(dect[0:-1])
+# 				item_class.append(dect[-1])
 			
-		if human_list!=[]:
-			humanMatching(image, human_list[0], humanDataset, itemDataset, encoder, missingPeopleDataset)
-		print("human",humanDataset.keys())
-		if item_list!=[]:
-			itemMatching(item_list[0], humanDataset,itemDataset)
-		print("item",itemDataset.keys())
-		count+=1
+# 		if human_list!=[]:
+# 			humanMatching(image, human_list[0], humanDataset, itemDataset, encoder, missingPeopleDataset)
+# 		print("human",humanDataset.keys())
+# 		if item_list!=[]:
+# 			itemMatching(item_list[0], humanDataset,itemDataset)
+# 		print("item",itemDataset.keys())
+# 		count+=1
 			
-		#print("global11111",humanDataset)
-		#print("item22222",itemDataset)
-		#Scan_for_item_existing(humanDataset,itemDataset)
-		#Track_and_Display(humanDataset, itemDataset)
-		#count+=1
+# 		#print("global11111",humanDataset)
+# 		#print("item22222",itemDataset)
+# 		#Scan_for_item_existing(humanDataset,itemDataset)
+# 		#Track_and_Display(humanDataset, itemDataset)
+# 		#count+=1
+
 
 def detecting_function(x, img,detection):
 	c1 = tuple(x[1:3].int())
@@ -227,6 +226,9 @@ def detecting_function(x, img,detection):
 
 
 if __name__=="__main__":
+
+	encoder = Autoencoder()
+	print("hi")
 
 	classes = load_classes('../data/coco.names')
 	colors = pkl.load(open("../model/pallete", "rb"))
@@ -269,8 +271,8 @@ if __name__=="__main__":
 	missingPeopleDataset = []
 	#test=Simulation()
 	
-	encoder = Autoencoder()
-	
+	# encoder = Autoencoder()
+
 	#while count<40:
 	count=0
 	#file=os.listdir(dir_name)
@@ -282,11 +284,11 @@ if __name__=="__main__":
 	
 
 	videofile = args.video  
-	cap = cv2.VideoCapture(0)  
+	cap = cv2.VideoCapture(videofile)  
 	assert cap.isOpened(), 'Cannot capture source'
 	start = time.time()    
 	while cap.isOpened():
-		
+		frameStartTime = time.time()
 		ret, frame = cap.read()
 		if ret:
 
@@ -298,7 +300,7 @@ if __name__=="__main__":
 			#print(frame)
 			
 			
-			
+			yoloStartTime = time.time()
 			img, orig_im, dim = prep_image(frame, inp_dim)
 			
 			im_dim = torch.FloatTensor(dim).repeat(1,2)
@@ -306,7 +308,7 @@ if __name__=="__main__":
 				im_dim = im_dim.cuda()
 				img = img.cuda()
 			
-			with torch.no_grad():   
+			with torch.no_grad(): 
 				output = model(Variable(img), CUDA)
 			output = write_results(output, confidence, num_classes, nms = True, nms_conf = nms_thesh)
 
@@ -334,7 +336,7 @@ if __name__=="__main__":
 			detection=[]
 			list(map(lambda x: detecting_function(x, orig_im,detection), output))
 			print("det",detection)
-
+			yoloEndTime = time.time()
 		
 			#Use this line to save the file
 			#list(map(cv2.imwrite, args.det+"/"+filename, orig_im))
@@ -355,12 +357,19 @@ if __name__=="__main__":
 				else:
 					item_list.append(dect[0:-1])
 					item_class.append(dect[-1])
-					
-			if human_list!=[]:
-				humanMatching(image, human_list, humanDataset, itemDataset, encoder, missingPeopleDataset)
+			
+			# when no human detect, we should still run humanMatching
+			# if human_list!=[]:
+			# 	humanMatching(image, human_list, humanDataset, itemDataset, encoder, missingPeopleDataset)
+			humanMatchingStartTime = time.time()
+			humanMatching(frame, human_list, humanDataset, itemDataset, encoder, missingPeopleDataset)
+			humanMatchingEndTime = time.time()
 			print("human",humanDataset.keys())
-			if item_list!=[]:
-				itemMatching((item_list,item_class), humanDataset,itemDataset)
+			# if item_list!=[]:
+			# 	itemMatching((item_list, item_class), humanDataset, itemDataset)
+			itemMatchingStartTime = time.time()
+			itemMatching((item_list, item_class), humanDataset, itemDataset)
+			itemMatchingEndTime = time.time()
 			print("item",itemDataset.keys())
 			count+=1
 			font = cv2.FONT_HERSHEY_SIMPLEX
@@ -373,12 +382,19 @@ if __name__=="__main__":
 					cv2.putText(orig_im,str(list(itemDataset.keys())[(i)*10:(i+1)*10]),(30,120+i*40),font,1,(0,0,0),2)
 			#if (i!=0):
 				#cv2.putText(orig_im,str(list(itemDataset.keys())[(i+1)*10:]),(30,90+(i+1)*40),font,1,(0,0,0),2)
+			scanStartTime = time.time()
 			Scan_for_item_existing(humanDataset,itemDataset)
+			scanEndTime = time.time()
+
+			trackStartTime = time.time()
 			Track_and_Display(humanDataset, itemDataset,orig_im,
 				(human_list,human_class),(item_list,item_class),classes,colors)
-			
+			trackEndTime = time.time()
 
 			count+=1
+
+			# cv2.imwrite(args.det+"/"+"frame%d.jpg" % count, orig_im)
+
 			#cv2.imwrite(args.det+"/"+"frame%d.jpg" % count, orig_im)
 
 
@@ -387,7 +403,19 @@ if __name__=="__main__":
 			if key & 0xFF == ord('q'):
 				break
 			frames += 1
-			print("FPS of the video is {:5.2f}".format( frames / (time.time() - start)))
+
+			frameEndTime = time.time()
+			print("Inference time for each task:")
+			print("Total:            ", frameEndTime - frameStartTime)
+			print("yolo:             ", yoloEndTime - yoloStartTime)
+			print("human matching:   ", humanMatchingEndTime - humanMatchingStartTime)
+			print("item matching:    ", itemMatchingEndTime - itemMatchingStartTime)
+			print("scan item exist:  ", scanEndTime - scanStartTime)
+			print("track and display:", trackEndTime - trackStartTime)
+
+
+			# print("FPS of the video is {:5.2f}".format( frames / (time.time() - start)))
+
 		else:
 			break
 
