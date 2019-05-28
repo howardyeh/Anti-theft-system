@@ -284,7 +284,7 @@ if __name__=="__main__":
 	
 
 	videofile = args.video  
-	cap = cv2.VideoCapture(videofile)  
+	cap = cv2.VideoCapture(0)  
 	assert cap.isOpened(), 'Cannot capture source'
 	start = time.time()    
 	while cap.isOpened():
@@ -383,7 +383,7 @@ if __name__=="__main__":
 			#if (i!=0):
 				#cv2.putText(orig_im,str(list(itemDataset.keys())[(i+1)*10:]),(30,90+(i+1)*40),font,1,(0,0,0),2)
 			scanStartTime = time.time()
-			Scan_for_item_existing(humanDataset,itemDataset)
+			Scan_for_item_existing(humanDataset,itemDataset,missingPeopleDataset)
 			scanEndTime = time.time()
 
 			trackStartTime = time.time()

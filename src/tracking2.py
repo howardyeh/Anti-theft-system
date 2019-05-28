@@ -19,7 +19,7 @@ import numpy as np
 import random
 import cv2
 
-def Scan_for_item_existing(humanDataset, itemDataset):
+def Scan_for_item_existing(humanDataset, itemDataset, missingPeopleDataset):
 	oclussion_check_dist=200  #not sure about this distance
 	stolen_check_dist=300     #Leave larger distance 
 	pop_item_list=[]
@@ -94,7 +94,8 @@ def Scan_for_item_existing(humanDataset, itemDataset):
 	for item in pop_item_list:
 		Pop_item_from_dataset(item,itemDataset)
 	for human in pop_human_list:
-		Pop_human_from_dataset(human,humanDataset)
+		Pop_human_from_dataset(human, humanDataset, missingPeopleDataset)
+		
 
 
 def Track_and_Display(humanDataset,itemDataset,orig_im,human_detect,item_detect,classes,colors):
@@ -162,8 +163,9 @@ def Pop_item_from_dataset(item,itemDataset):
 	#print("itemDataset",itemDataset)
 	#print("item",item.id)
 	itemDataset.pop(item.id) # typo: pop() need to use key not value
-def Pop_human_from_dataset(human,humanDataset):
+def Pop_human_from_dataset(human,humanDataset,missingPeopleDataset):
 	humanDataset.pop(human.id) # typo: pop() need to use key not value
+	missingPeopleDataset.remove(human)
 
 
 def findClosestHuman(item,humanDataset):
