@@ -102,3 +102,12 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+# mp4
+*.mp4
+
+# weights
+*.weights
+
+similar_constrain_logs/
+det/
