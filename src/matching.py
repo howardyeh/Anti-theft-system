@@ -2,6 +2,7 @@ import numpy as np
 from numpy import linalg as LA
 from dataType import humanData, itemData
 import cv2
+import time
 
 ''' 
 Container content :
@@ -42,11 +43,11 @@ def resize_human_to_autoencoder(img):
 	return batch_X
 
 
-#temperory remove autoencoder, will add it back when finishing debuging
+
 def humanMatching(image, detection, humanDataset, itemDataset, encoder, missingPeopleDataset):
 
 	global countHuman
-	distanceThres = 120
+	distanceThres = 60
 	
 	for h_n in detection:
 		find_pair = False
@@ -58,8 +59,8 @@ def humanMatching(image, detection, humanDataset, itemDataset, encoder, missingP
 		# print("detected human in ", hnx, hny)
 		for h_d in humanDataset.values():
 			# print("dataset human in ", h_d.x, h_d.y)
-			#print("human distance",np.sqrt((hnx - h_d.x)**2 + (hny - h_d.y)**2),distanceThres)
-			if h_d.missing == False and np.sqrt((hnx - h_d.x)**2 + (hny - h_d.y)**2) < distanceThres:
+			# print("human distance",np.sqrt((hnx - h_d.x)**2 + (hny - h_d.y)**2),distanceThres)
+			if h_d.updated == False and h_d.missing == False and np.sqrt((hnx - h_d.x)**2 + (hny - h_d.y)**2) < distanceThres:
 				h_d.update_position(hnx, hny)
 				h_d.updated = True
 				h_d.missing = False
@@ -69,9 +70,11 @@ def humanMatching(image, detection, humanDataset, itemDataset, encoder, missingP
 
 		if not find_pair:
 			matchId=None
+			encodeStart = time.time()
 			input_img = resize_human_to_autoencoder(image[int(h_n[1]):(h_n[3]), int(h_n[0]):int(h_n[2]), :])
 			feature = encoder.sess.run(encoder.encodeFeature, feed_dict={encoder.x: input_img})
-			# feature = encoder.encode(image[int(h_n[0]):int(h_n[2]), int(h_n[1]):(h_n[3]),:]) # encode the cropped image
+			encodeEnd = time.time()
+			print("encoder spend ", encodeEnd - encodeStart)
 			print("detected human's feature = ", feature)
 			matchId = matchMissingPeople(feature, missingPeopleDataset)
 			# print(matchId)
@@ -102,7 +105,7 @@ def humanMatching(image, detection, humanDataset, itemDataset, encoder, missingP
 def itemMatching(detection, humanDataset, itemDataset):
 
 	global countItem
-	distanceThres = 60
+	distanceThres = 30
 		
 	for d_n, d_name in zip(detection[0],detection[1]):
 		find_pair = False
@@ -156,18 +159,22 @@ def itemMatching(detection, humanDataset, itemDataset):
 def findClosestHuman(item, humanDataset):
 	min_dist = 1000
 	closestHuman = None
+	item_human_thres = 60
 	for human in humanDataset.values():
 		if human.missing == False:
 			dist = np.sqrt((item.x - human.x)**2 + (item.y - human.y)**2)
-			#print("distance between human",human.id, "and item", item.id, "is", dist)
-			if dist < min_dist:
-				min_dist = dist
-				closestHuman = human
+			print("distance between human",human.id, "and item", item.id, "is", dist)
+			if dist < item_human_thres:
+				if dist < min_dist:
+					min_dist = dist
+					closestHuman = human
 	if closestHuman!=None:
 		closestHuman.itemList.append(item.id)
 		item.owner=closestHuman.id
 
 		print("owner",item.owner)
+	else:
+		item.owner=0
 
 	
 
@@ -187,6 +194,8 @@ def matchMissingPeople(feature, missingPeopleDataset):
 	#print("missingPeopleDataset = ", missingPeopleDataset)
 	for h_d in missingPeopleDataset:
 		dist = calculateDist(feature, h_d.feature)
+		print("distance = ",dist)
+		print("\n\n\n\n\n\n\n")
 		if dist < thresDist:
 			if dist < closestMatchDist:
 				closestMatchDist = dist

@@ -116,7 +116,7 @@ def arg_parse():
 	parser = argparse.ArgumentParser(description='Anti-theft system')
 	parser.add_argument("--video", dest = 'video', help = 
 						"Video to run detection upon",
-						default = "../dataset/dataset2.mp4", type = str)
+						default = "../dataset/dataset1.mp4", type = str)
 	parser.add_argument("--det", dest = 'det', help ="Image / Directory to store detections to",
 						default = "../dataset/det", type = str)
 	#parser.add_argument("--dataset", dest = "dataset", help = "Dataset on which the network has been trained", default = "pascal")
@@ -284,7 +284,7 @@ if __name__=="__main__":
 	
 
 	videofile = args.video  
-	cap = cv2.VideoCapture(0)  
+	cap = cv2.VideoCapture(videofile)  
 	assert cap.isOpened(), 'Cannot capture source'
 	start = time.time()    
 	while cap.isOpened():
