@@ -8,7 +8,7 @@ import cv2
 # from torch.autograd import Variable
 from dataType import humanData, itemData
 from autoencoder import Autoencoder
-from matching import humanMatching, itemMatching
+from matching2 import humanMatching, itemMatching
 from tracking2 import Scan_for_item_existing,Track_and_Display
 import pandas as pd
 import random 
@@ -116,11 +116,11 @@ def arg_parse():
 	parser = argparse.ArgumentParser(description='Anti-theft system')
 	parser.add_argument("--video", dest = 'video', help = 
 						"Video to run detection upon",
-						default = "../dataset/dataset1.mp4", type = str)
+						default = "../dataset/dataset2.mp4", type = str)
 	parser.add_argument("--det", dest = 'det', help ="Image / Directory to store detections to",
 						default = "../dataset/det", type = str)
 	#parser.add_argument("--dataset", dest = "dataset", help = "Dataset on which the network has been trained", default = "pascal")
-	parser.add_argument("--confidence", dest = "confidence", help = "Object Confidence to filter predictions", default = 0.5)
+	parser.add_argument("--confidence", dest = "confidence", help = "Object Confidence to filter predictions", default = 0.4)
 	parser.add_argument("--nms_thresh", dest = "nms_thresh", help = "NMS Threshhold", default = 0.4)
 	parser.add_argument("--cfg", dest = 'cfgfile', help = "Config file",
 						default = "../cfg/yolov3.cfg", type = str)
@@ -352,9 +352,10 @@ if __name__=="__main__":
 				#print(dect)
 				
 				if dect[-1]=='person':
-					human_list.append(dect[0:-1])
-					human_class.append(dect[-1])
-				else:
+					if (dect[2] - dect[0] > 100) and (dect[3] - dect[1] > 100):
+						human_list.append(dect[0:-1])
+						human_class.append(dect[-1])
+				elif dect[-1]!='chair':
 					item_list.append(dect[0:-1])
 					item_class.append(dect[-1])
 			
@@ -393,7 +394,7 @@ if __name__=="__main__":
 
 			count+=1
 
-			# cv2.imwrite(args.det+"/"+"frame%d.jpg" % count, orig_im)
+			cv2.imwrite(args.det+"/"+"frame%d.jpg" % count, orig_im)
 
 			#cv2.imwrite(args.det+"/"+"frame%d.jpg" % count, orig_im)
 

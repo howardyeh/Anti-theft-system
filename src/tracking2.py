@@ -86,9 +86,10 @@ def Scan_for_item_existing(humanDataset, itemDataset, missingPeopleDataset):
 				#print(item,human.id)
 				if itemDataset[item].missing ==True:
 					#print("pop item when item missing")
-					human.itemList.pop(index)
-					#Pop_item_from_dataset(item,itemDataset)
-					pop_item_list.append(itemDataset[item])
+					if np.sqrt((itemDataset[item].x - human.x)**2 + (itemDataset[item].y - human.y)**2) < 200:
+						human.itemList.pop(index)
+						#Pop_item_from_dataset(item,itemDataset)
+						pop_item_list.append(itemDataset[item])
 				else:
 					itemDataset[item].alarm_flag=False   
 	for item in pop_item_list:
