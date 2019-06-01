@@ -120,7 +120,7 @@ def arg_parse():
 	parser.add_argument("--det", dest = 'det', help ="Image / Directory to store detections to",
 						default = "../dataset/det", type = str)
 	#parser.add_argument("--dataset", dest = "dataset", help = "Dataset on which the network has been trained", default = "pascal")
-	parser.add_argument("--confidence", dest = "confidence", help = "Object Confidence to filter predictions", default = 0.4)
+	parser.add_argument("--confidence", dest = "confidence", help = "Object Confidence to filter predictions", default = 0.8)
 	parser.add_argument("--nms_thresh", dest = "nms_thresh", help = "NMS Threshhold", default = 0.4)
 	parser.add_argument("--cfg", dest = 'cfgfile', help = "Config file",
 						default = "../cfg/yolov3.cfg", type = str)
