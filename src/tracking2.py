@@ -36,7 +36,7 @@ def Scan_for_item_existing(humanDataset, itemDataset, missingPeopleDataset):
 					continue
 				print("find someone close")
 				#print("item",itemDataset[item].id,itemDataset[item].missing)
-				if itemDataset[item].missing >5: 
+				if itemDataset[item].missing >25: 
 					#print("itemflag1",itemDataset[item].alarm_flag)
 					itemDataset[item].alarm_flag = True
 					if dist>oclussion_check_dist :
@@ -84,7 +84,7 @@ def Scan_for_item_existing(humanDataset, itemDataset, missingPeopleDataset):
 			#print("human.item",human.id,human.itemList,human.x,human.y)
 			for index,item in enumerate(human.itemList):
 				#print(item,human.id)
-				if itemDataset[item].missing >5:
+				if itemDataset[item].missing >25:
 					#print("pop item when item missing")
 				
 					human.itemList.pop(index)

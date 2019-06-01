@@ -20,7 +20,7 @@ class itemData:
 		self.y = y
 		self.id = idx
 		self.updated = True
-		self.missing = False
+		self.missing = 0
 		self.alarm_flag = False
 		self.name=name
 		self.owner=0

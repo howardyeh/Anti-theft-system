@@ -137,7 +137,8 @@ def itemMatching(detection, humanDataset, itemDataset):
 						print("update",d_name)
 						d_d.update_position(dnx, dny)
 						d_d.updated = True
-						d_d.missing = False
+						# d_d.missing = False
+						d_d.missing = 0
 						find_pair = True
 						break
 				# if d_d.alarm_flag == False:
@@ -149,7 +150,8 @@ def itemMatching(detection, humanDataset, itemDataset):
 				else: # if item is in alarm state, no update position
 					#print("do not update",d_name)	
 					d_d.updated = True
-					d_d.missing = False
+					# d_d.missing = False
+					d_d.missing = 0
 					find_pair = True
 					break
 
@@ -164,8 +166,12 @@ def itemMatching(detection, humanDataset, itemDataset):
 	for d_d in itemDataset.values():
 		# what if item get occluded for a frame?
 				
-		if d_d.updated == False and d_d.missing == False:
-			d_d.missing = True
+		# if d_d.updated == False and d_d.missing == False:
+		if d_d.updated == False and d_d.missing <= 25:
+			# d_d.missing = True
+			d_d.missing += 1
+			print("d_d.missing = ", d_d.missing)
+			print("\n=\n=\n=")
 
 		d_d.updated = False # reset the update flag for all item in dataset
 
