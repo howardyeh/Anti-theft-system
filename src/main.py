@@ -8,7 +8,7 @@ import cv2
 # from torch.autograd import Variable
 from dataType import humanData, itemData
 from autoencoder import Autoencoder
-from matching2 import humanMatching, itemMatching
+from matching3 import humanMatching, itemMatching
 from tracking2 import Scan_for_item_existing,Track_and_Display
 import pandas as pd
 import random 
@@ -120,7 +120,7 @@ def arg_parse():
 	parser.add_argument("--det", dest = 'det', help ="Image / Directory to store detections to",
 						default = "../dataset/det", type = str)
 	#parser.add_argument("--dataset", dest = "dataset", help = "Dataset on which the network has been trained", default = "pascal")
-	parser.add_argument("--confidence", dest = "confidence", help = "Object Confidence to filter predictions", default = 0.8)
+	parser.add_argument("--confidence", dest = "confidence", help = "Object Confidence to filter predictions", default = 0.6)
 	parser.add_argument("--nms_thresh", dest = "nms_thresh", help = "NMS Threshhold", default = 0.4)
 	parser.add_argument("--cfg", dest = 'cfgfile', help = "Config file",
 						default = "../cfg/yolov3.cfg", type = str)
@@ -393,7 +393,7 @@ if __name__=="__main__":
 			trackEndTime = time.time()
 
 			count+=1
-
+			print("now in frame", count)
 			cv2.imwrite(args.det+"/"+"frame%d.jpg" % count, orig_im)
 
 			#cv2.imwrite(args.det+"/"+"frame%d.jpg" % count, orig_im)

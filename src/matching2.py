@@ -167,7 +167,7 @@ def itemMatching(detection, humanDataset, itemDataset):
 		# what if item get occluded for a frame?
 				
 		# if d_d.updated == False and d_d.missing == False:
-		if d_d.updated == False and d_d.missing <= 25:
+		if d_d.updated == False and d_d.missing <= 50:
 			# d_d.missing = True
 			d_d.missing += 1
 			print("d_d.missing = ", d_d.missing)

@@ -120,7 +120,6 @@ def itemMatching(detection, humanDataset, itemDataset):
 
 	global countItem
 	distanceThres = 30
-	
 		
 	for d_n, d_name in zip(detection[0],detection[1]):
 		find_pair = False
@@ -135,7 +134,7 @@ def itemMatching(detection, humanDataset, itemDataset):
 			if np.sqrt((dnx - d_d.x)**2 + (dny - d_d.y)**2) < distanceThres*(d_d.missing+1):
 				print("flag",d_d.alarm_flag)
 				if d_d.alarm_flag == False:
-					print("name",d_name,d_d.name)
+					print("name", d_name, d_d.name)
 					if d_name==d_d.name:
 						
 						d_d.update_position(dnx, dny)
@@ -172,7 +171,7 @@ def itemMatching(detection, humanDataset, itemDataset):
 		# qwhat if item get occluded for a frame?
 				
 		# if d_d.updated == False and d_d.missing == False:
-		print("belwo loop=======",d_d.name,d_d.id)
+		print("belwo loop=======", d_d.name, d_d.id)
 		if d_d.updated == False and d_d.missing <= 50:
 			# d_d.missing = True
 			d_d.missing += 1
