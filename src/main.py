@@ -9,7 +9,7 @@ import cv2
 from dataType import humanData, itemData
 from autoencoder import Autoencoder
 from matching3 import humanMatching, itemMatching
-from tracking2 import Scan_for_item_existing,Track_and_Display
+from tracking3 import Scan_for_item_existing,Track_and_Display
 import pandas as pd
 import random 
 import pickle as pkl
@@ -266,9 +266,14 @@ if __name__=="__main__":
 
 	#Construct an empty dataset for human and item
 	humanDataset = {}
-	image=np.zeros((2000,2000,3))
+	image=np.zeros((1,128,128,3))
+	feature = encoder.sess.run(encoder.encodeFeature, feed_dict={encoder.x: image})
+	newHuman = humanData(0, 0, 0, feature)
+	humanDataset[0] = newHuman
+
 	itemDataset = {}
 	missingPeopleDataset = []
+
 	#test=Simulation()
 	
 	# encoder = Autoencoder()
@@ -352,7 +357,7 @@ if __name__=="__main__":
 				#print(dect)
 				
 				if dect[-1]=='person':
-					if (dect[2] - dect[0] > 100) and (dect[3] - dect[1] > 100):
+					if (dect[2] - dect[0] > 120) and (dect[3] - dect[1] > 120):
 						human_list.append(dect[0:-1])
 						human_class.append(dect[-1])
 				elif dect[-1]!='chair':

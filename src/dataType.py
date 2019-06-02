@@ -4,10 +4,11 @@ class humanData:
 		self.y = y
 		self.id = idx
 		self.updated = True
-		self.missing = False
+		self.missing = 0
 		self.isSuspect = False
 		self.itemList = []
 		self.stolenitemDict={}
+		self.firstFeature = feature
 		self.feature = feature
 	def update_position(self, nx, ny):
 		self.x = nx

@@ -40,18 +40,18 @@ def Scan_for_item_existing(humanDataset, itemDataset, missingPeopleDataset):
 				if itemDataset[item].missing <50: 
 					#print("itemflag1",itemDataset[item].alarm_flag)
 					itemDataset[item].alarm_flag = True
-					# if dist>oclussion_check_dist :
-					# 	if cloestHuman.isSuspect==True:
-					# 		cloestHuman.stolenitemDict[item]=itemDataset[item]
-					# 		# if itemDataset[item].missing == 0:
-					# 		# 	cloestHuman.isSuspect = False
-					# 		# else:
-					# 		# 	cloestHuman.stolenitemDict[item]=itemDataset[item]
-					# 	#cloestHuman.isSuspect=True 
-					# 	#Take by suspect explicitly
-					# else:
-					# 	#print("in range",cloestHuman.id,dist)
-					# 	cloestHuman.isSuspect=True
+					if dist>oclussion_check_dist :
+						if cloestHuman.isSuspect==True:
+							cloestHuman.stolenitemDict[item]=itemDataset[item]
+							# if itemDataset[item].missing == 0:
+							# 	cloestHuman.isSuspect = False
+							# else:
+							# 	cloestHuman.stolenitemDict[item]=itemDataset[item]
+						#cloestHuman.isSuspect=True 
+						#Take by suspect explicitly
+					else:
+						#print("in range",cloestHuman.id,dist)
+						cloestHuman.isSuspect=True
 				else:
 					#print("itemflag2",item,itemDataset[item].alarm_flag)
 					#print("what are you doing ",itemDataset[item].alarm_flag)

@@ -79,9 +79,11 @@ def humanMatching(image, detection, humanDataset, itemDataset, encoder, missingP
 		if matchCandidate is not None:
 			matchCandidate.update_position(hnx, hny)
 			matchCandidate.updated = True
-			if matchCandidate.missing == True:
+			# if matchCandidate.missing == True:
+			if matchCandidate.missing > 50:
 				missingPeopleDataset.remove(matchCandidate)
-				matchCandidate.missing = False
+				# matchCandidate.missing = False
+				matchCandidate.missing = 0
 			find_pair = True
 			setAllItemAlarmOff(matchCandidate, itemDataset)
 

@@ -47,7 +47,7 @@ def resize_human_to_autoencoder(img):
 def humanMatching(image, detection, humanDataset, itemDataset, encoder, missingPeopleDataset):
 
 	global countHuman
-	distanceThres = 100
+	distanceThres = 150
 	
 	for h_n in detection:
 		find_pair = False
@@ -73,15 +73,26 @@ def humanMatching(image, detection, humanDataset, itemDataset, encoder, missingP
 			print("human distance", np.sqrt((hnx - h_d.x)**2 + (hny - h_d.y)**2), distanceThres)
 			if h_d.updated == False and np.sqrt((hnx - h_d.x)**2 + (hny - h_d.y)**2) < distanceThres:
 				dist = calculateDist(feature, h_d.feature)
+				print("feature distance between", hnx, hny,"and", h_d.id, dist)
 				if dist < min_dist:
-					min_dist = dist
-					matchCandidate = h_d
+					if abs(dist - min_dist) < 0.07:
+						print("feature too close!!!!!")
+						firstFeatureDist = calculateDist(feature, matchCandidate.firstFeature)
+						if calculateDist(feature, h_d.firstFeature) < firstFeatureDist:
+							min_dist = dist
+							matchCandidate = h_d
+					else:
+						min_dist = dist
+						matchCandidate = h_d
 		if matchCandidate is not None:
 			matchCandidate.update_position(hnx, hny)
+			matchCandidate.feature = feature
 			matchCandidate.updated = True
-			if matchCandidate.missing == True:
+			# if matchCandidate.missing == True:
+			if matchCandidate.missing > 50:
 				missingPeopleDataset.remove(matchCandidate)
-				matchCandidate.missing = False
+				# matchCandidate.missing = False
+				matchCandidate.missing = 0
 			find_pair = True
 			setAllItemAlarmOff(matchCandidate, itemDataset)
 
@@ -100,18 +111,23 @@ def humanMatching(image, detection, humanDataset, itemDataset, encoder, missingP
 			else:
 				print("human match",matchId)
 				humanDataset[matchId].updated = True
-				humanDataset[matchId].missing = False
+				# humanDataset[matchId].missing = False
+				humanDataset[matchId].missing = 0
 				humanDataset[matchId].update_position(hnx, hny)
+				humanDataset[matchId].feature = feature
 				setAllItemAlarmOff(humanDataset[matchId], itemDataset)
 
 
 	for h_d in humanDataset.values():
 		# what if people get occluded for a frame?
-		if h_d.updated == False and h_d.missing == False:
-			h_d.missing = True
-			missingPeopleDataset.append(h_d)
-			print("Human missing! missingPeopleDataset become", missingPeopleDataset)
-			print("\n \n \n\n\n")
+		# if h_d.updated == False and h_d.missing == False:
+		if h_d.updated == False and h_d.missing <= 50:
+			# h_d.missing = True
+			h_d.missing += 1
+			if h_d.missing > 50:
+				missingPeopleDataset.append(h_d)
+				print("Human missing! missingPeopleDataset become", missingPeopleDataset)
+				print("\n \n \n\n\n")
 
 		h_d.updated = False # reset the update flag for all human in dataset
 
@@ -119,7 +135,8 @@ def humanMatching(image, detection, humanDataset, itemDataset, encoder, missingP
 def itemMatching(detection, humanDataset, itemDataset):
 
 	global countItem
-	distanceThres = 30
+	# distanceThres = 30
+	distanceThres = 50
 		
 	for d_n, d_name in zip(detection[0],detection[1]):
 		find_pair = False
@@ -133,7 +150,7 @@ def itemMatching(detection, humanDataset, itemDataset):
 			print("item distance===: ", ((dnx - d_d.x)**2 + (dny - d_d.y)**2), distanceThres*(d_d.missing+1))
 			if np.sqrt((dnx - d_d.x)**2 + (dny - d_d.y)**2) < distanceThres*(d_d.missing+1):
 				print("flag",d_d.alarm_flag)
-				if d_d.alarm_flag == False:
+				if d_d.alarm_flag == False and d_d.owner != 0: # no owner object don't update position
 					print("name", d_name, d_d.name)
 					if d_name==d_d.name:
 						
@@ -186,7 +203,8 @@ def findClosestHuman(item, humanDataset):
 	closestHuman = None
 	item_human_thres = 500
 	for human in humanDataset.values():
-		if human.missing == False:
+		# if human.missing == False:
+		if human.missing <= 50:
 			dist = np.sqrt((item.x - human.x)**2 + (item.y - human.y)**2)
 			print("distance between human",human.id, "and item", item.id, "is", dist)
 			if dist < item_human_thres:
