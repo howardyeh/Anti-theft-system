@@ -20,12 +20,12 @@ import random
 import cv2
 
 def Scan_for_item_existing(humanDataset, itemDataset, missingPeopleDataset):
-	oclussion_check_dist=200  #not sure about this distance
+	oclussion_check_dist=300  #not sure about this distance
 	stolen_check_dist=300     #Leave larger distance 
 	pop_item_list=[]
 	pop_human_list=[]
 	for human in humanDataset.values():
-		print("human info==",human.id, human.missing, human.itemList)
+		# print("human info==",human.id, human.missing, human.itemList)
 		# if human.missing == True:  #True or falsue
 		if human.missing > 50: 
 			
@@ -33,13 +33,16 @@ def Scan_for_item_existing(humanDataset, itemDataset, missingPeopleDataset):
 
 				cloestHuman,dist=findClosestHuman(itemDataset[item],humanDataset)
 				if cloestHuman == None:
-					print("no one close")
+					# print("no one close")
 					continue
-				print("find someone close")
+				# print("find someone close")
 				#print("item",itemDataset[item].id,itemDataset[item].missing)
-				if itemDataset[item].missing <50: 
-					#print("itemflag1",itemDataset[item].alarm_flag)
+				if itemDataset[item].missing <=50:
+					# print("i want to see this number = ",itemDataset[item].id, itemDataset[item].missing) 
+					# print("itemflag1", itemDataset[item].alarm_flag)
 					itemDataset[item].alarm_flag = True
+					if item in cloestHuman.stolenitemDict: # when human become suspect but item detect again
+						cloestHuman.stolenitemDict.pop(item)
 					# if dist>oclussion_check_dist :
 					# 	if cloestHuman.isSuspect==True:
 					# 		cloestHuman.stolenitemDict[item]=itemDataset[item]
@@ -55,10 +58,12 @@ def Scan_for_item_existing(humanDataset, itemDataset, missingPeopleDataset):
 				else:
 					#print("itemflag2",item,itemDataset[item].alarm_flag)
 					#print("what are you doing ",itemDataset[item].alarm_flag)
+					# print("time to find the suspect")
 					if itemDataset[item].alarm_flag == True:
 						#cloestHuman,dist=findCloestHuman(item,humanDataset) 
 						#print("=======alarm item: ",itemDataset[item].id)
 						if cloestHuman.isSuspect==True:
+							# print(cloestHuman.id, "is suspect..................")
 							if dist>stolen_check_dist:
 								cloestHuman.stolenitemDict[item]=itemDataset[item]
 								#print("add to dict")
@@ -66,12 +71,13 @@ def Scan_for_item_existing(humanDataset, itemDataset, missingPeopleDataset):
 							#	cloestHuman.isSuspect=False 
 							#Track_and_display(humanDataset) will used in main function   
 						else:
+							# print(cloestHuman.id, "isn't suspect yet..................")
 							if dist<oclussion_check_dist:
-								#print("less than oclussion",dist,oclussion_check_dist)
+								# print("less than oclussion",dist,oclussion_check_dist)
 								cloestHuman.isSuspect=True
 								#cloestHuman.stolenitemDict[item]=itemDataset[item]
 							else:
-								#print("greter than oclussion",dist,oclussion_check_dist)
+								# print("greter than oclussion",dist,oclussion_check_dist)
 								cloestHuman.isSuspect=False    
 								#Oclussion case
 					else:
@@ -110,7 +116,7 @@ def Track_and_Display(humanDataset,itemDataset,orig_im,human_detect,item_detect,
 	human_disp_list={}
 	item_disp_list={}
 	for human in humanDataset.values():
-		print("Suspect",human.id, human.isSuspect, human.stolenitemDict.keys())
+		# print("Suspect",human.id, human.isSuspect, human.stolenitemDict.keys())
 		if human.isSuspect==True and len(human.stolenitemDict)!=0: 
 			#bounded with red color
 			human_disp_list[(human.x,human.y)]=((51,51,251),human.id)#"red"
@@ -180,7 +186,7 @@ def findClosestHuman(item,humanDataset):
 	dist = 10000 # add by yes, dist need to be initialize otherwise when no human will error
 	closestHuman=None
 	for human in humanDataset.values():
-		if human.missing==False:
+		if human.missing <=50:
 			dist=np.sqrt((item.x-human.x)**2+(item.y-human.y)**2)
 			if dist<min_dist:
 				min_dist=dist

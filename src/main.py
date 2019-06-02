@@ -9,7 +9,7 @@ import cv2
 from dataType import humanData, itemData
 from autoencoder import Autoencoder
 from matching3 import humanMatching, itemMatching
-from tracking3 import Scan_for_item_existing,Track_and_Display
+from tracking2 import Scan_for_item_existing,Track_and_Display
 import pandas as pd
 import random 
 import pickle as pkl
@@ -266,10 +266,9 @@ if __name__=="__main__":
 
 	#Construct an empty dataset for human and item
 	humanDataset = {}
-	image=np.zeros((1,128,128,3))
+	# first time TF will take more time, so I use this as an initializer
+	image = 255*np.ones((1,128,128,3))
 	feature = encoder.sess.run(encoder.encodeFeature, feed_dict={encoder.x: image})
-	newHuman = humanData(0, 0, 0, feature)
-	humanDataset[0] = newHuman
 
 	itemDataset = {}
 	missingPeopleDataset = []
@@ -291,6 +290,8 @@ if __name__=="__main__":
 	videofile = args.video  
 	cap = cv2.VideoCapture(videofile)  
 	assert cap.isOpened(), 'Cannot capture source'
+	fps = cap.get(cv2.CAP_PROP_FPS)
+	print("Frames per second using video.get(cv2.CAP_PROP_FPS) : {0}".format(fps))
 	start = time.time()    
 	while cap.isOpened():
 		frameStartTime = time.time()
@@ -298,7 +299,7 @@ if __name__=="__main__":
 		if ret:
 
 		#for filename in file:
-			print("=================")
+			# print("=================")
 			#print(frame)
 			#print("time stamp:",count)
 			#frame=os.path.join(dir_name,filename)
@@ -340,7 +341,7 @@ if __name__=="__main__":
 			
 			detection=[]
 			list(map(lambda x: detecting_function(x, orig_im,detection), output))
-			print("det",detection)
+			# print("det",detection)
 			yoloEndTime = time.time()
 		
 			#Use this line to save the file
@@ -360,7 +361,7 @@ if __name__=="__main__":
 					if (dect[2] - dect[0] > 120) and (dect[3] - dect[1] > 120):
 						human_list.append(dect[0:-1])
 						human_class.append(dect[-1])
-				elif dect[-1]!='chair':
+				elif dect[-1]!='chair' and dect[-1]!='diningtable':
 					item_list.append(dect[0:-1])
 					item_class.append(dect[-1])
 			
@@ -370,13 +371,13 @@ if __name__=="__main__":
 			humanMatchingStartTime = time.time()
 			humanMatching(frame, human_list, humanDataset, itemDataset, encoder, missingPeopleDataset)
 			humanMatchingEndTime = time.time()
-			print("human",humanDataset.keys())
+			# print("human",humanDataset.keys())
 			# if item_list!=[]:
 			# 	itemMatching((item_list, item_class), humanDataset, itemDataset)
 			itemMatchingStartTime = time.time()
 			itemMatching((item_list, item_class), humanDataset, itemDataset)
 			itemMatchingEndTime = time.time()
-			print("item",itemDataset.keys())
+			# print("item",itemDataset.keys())
 			count+=1
 			font = cv2.FONT_HERSHEY_SIMPLEX
 			#cv2.putText(orig_im,filename,(30,40),font,1,(0,0,0),2)
@@ -398,26 +399,26 @@ if __name__=="__main__":
 			trackEndTime = time.time()
 
 			count+=1
-			print("now in frame", count)
-			cv2.imwrite(args.det+"/"+"frame%d.jpg" % count, orig_im)
+			# print("now in frame", count)
+			# cv2.imwrite(args.det+"/"+"frame%d.jpg" % count, orig_im)
 
 			#cv2.imwrite(args.det+"/"+"frame%d.jpg" % count, orig_im)
 
 
 			cv2.imshow("frame", orig_im)
-			key = cv2.waitKey(2)
+			key = cv2.waitKey(1)
 			if key & 0xFF == ord('q'):
 				break
 			frames += 1
 
 			frameEndTime = time.time()
-			print("Inference time for each task:")
-			print("Total:            ", frameEndTime - frameStartTime)
-			print("yolo:             ", yoloEndTime - yoloStartTime)
-			print("human matching:   ", humanMatchingEndTime - humanMatchingStartTime)
-			print("item matching:    ", itemMatchingEndTime - itemMatchingStartTime)
-			print("scan item exist:  ", scanEndTime - scanStartTime)
-			print("track and display:", trackEndTime - trackStartTime)
+			# print("Inference time for each task:")
+			# print("Total:            ", frameEndTime - frameStartTime)
+			# print("yolo:             ", yoloEndTime - yoloStartTime)
+			# print("human matching:   ", humanMatchingEndTime - humanMatchingStartTime)
+			# print("item matching:    ", itemMatchingEndTime - itemMatchingStartTime)
+			# print("scan item exist:  ", scanEndTime - scanStartTime)
+			# print("track and display:", trackEndTime - trackStartTime)
 
 
 			# print("FPS of the video is {:5.2f}".format( frames / (time.time() - start)))
@@ -425,7 +426,7 @@ if __name__=="__main__":
 		else:
 			break
 
-
+	cap.release()
 
 	
 
