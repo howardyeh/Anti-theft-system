@@ -72,6 +72,10 @@ def humanMatching(image, detection, humanDataset, itemDataset, encoder, missingP
 			# print("dataset human in ", h_d.x, h_d.y)
 			# print("human distance", np.sqrt((hnx - h_d.x)**2 + (hny - h_d.y)**2), distanceThres)
 			if h_d.updated == False and np.sqrt((hnx - h_d.x)**2 + (hny - h_d.y)**2) < distanceThres:
+				# dist = np.sqrt((hnx - h_d.x)**2 + (hny - h_d.y)**2)
+				# if dist < min_dist:
+				# 	min_dist = dist
+				# 	matchCandidate = h_d
 				dist = calculateDist(feature, h_d.feature)
 				# print("feature distance between", hnx, hny,"and", h_d.id, dist)
 				if dist < min_dist:
