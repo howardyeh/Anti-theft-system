@@ -6,10 +6,10 @@ import time
 # import torch.nn as nn
 import cv2 
 # from torch.autograd import Variable
-from dataType import humanData, itemData
+from dataType4 import humanData, itemData # or dataType
 from autoencoder import Autoencoder
-from matching3 import humanMatching, itemMatching
-from tracking2 import Scan_for_item_existing,Track_and_Display
+from matching4 import humanMatching, itemMatching # or matching3
+from tracking4 import Scan_for_item_existing,Track_and_Display # or tracking2
 import pandas as pd
 import random 
 import pickle as pkl
